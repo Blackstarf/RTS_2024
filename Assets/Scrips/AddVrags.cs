@@ -1,74 +1,95 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class AddVrags : MonoBehaviour
 {
     public TMP_Dropdown enemyCountDropdown;
-    public GameObject enemiesImagePanel;
-    public TMP_FontAsset customFont; 
+    public GameObject Vrag2,Vrag3,Vrag4,Vrag5,Vrag6;
+    public GameObject Player, Complexity, SizeMap;
+    int startDropdown = 1;
 
     void Start()
     {
-        // Подключаем событие к Dropdown
         enemyCountDropdown.onValueChanged.AddListener(OnEnemyCountChanged);
     }
-
-    // Метод для обработки изменения выбора в Dropdown (он теперь public)
     public void OnEnemyCountChanged(int selectedValue)
     {
         Debug.Log("Выбранное количество противников: " + (selectedValue + 1));  // Плюс 1 для учёта сдвига
-        for (int i = enemiesImagePanel.transform.childCount - 1; i >= 0; i--)
+        if (startDropdown == 1) 
         {
-            Destroy(enemiesImagePanel.transform.GetChild(i).gameObject);
-        }
-        // Изначальные координаты для первого противника
-        float startX = 0f;
-        float startY = 0f;
-        float offsetY = 60f;  // Отступ по Y для следующих противников
-        float offsetX = 0f;    // Если вы хотите отступ по оси X, можно задать
-
-        // Создаём новые блоки для каждого противника
-        for (int i = 0; i < selectedValue; i++)
-        {
-            // Создаём контейнер для противника с компонентом Image
-            GameObject enemyContainer = new GameObject($"Enemy_{i + 1}", typeof(Image)); // Создаём сразу с Image
-            enemyContainer.transform.SetParent(enemiesImagePanel.transform);
-
-            // Получаем компонент Image и настраиваем его
-            Image enemyImage = enemyContainer.GetComponent<Image>();
-            enemyImage.color = Color.gray;  // Просто серый цвет для фона
-
-            // Настройка размеров контейнера (используем RectTransform)
-            RectTransform rectTransform = enemyContainer.GetComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(65, 4); // Устанавливаем размеры для каждого блока (ширина 610, высота 40)
-
-            // Устанавливаем позицию для текущего противника с учётом отступов
-            rectTransform.anchoredPosition = new Vector2(startX + offsetX, startY - (i * offsetY)); // Отнимаем от Y для вертикальной раскладки
-
-            // Создание и настройка текста "Противник X"
-            GameObject textObj = new GameObject("EnemyText");
-            textObj.transform.SetParent(enemyContainer.transform);
-            TextMeshProUGUI enemyText = textObj.AddComponent<TextMeshProUGUI>();
-            enemyText.text = $"Противник {i + 1}";
-            enemyText.fontSize = 2;   // Устанавливаем нужный размер шрифта
-            enemyText.color = Color.black;
-            // Применяем ваш шрифт
-            if (customFont != null)
+            startDropdown = selectedValue + 1;
+            if (startDropdown == 2)
             {
-                enemyText.font = customFont; // Назначаем собственный шрифт
+                Vrag2.gameObject.SetActive(true);
+                Vrag3.gameObject.SetActive(false);
+                Vrag4.gameObject.SetActive(false);
+                Vrag5.gameObject.SetActive(false);
+                Vrag6.gameObject.SetActive(false);
+                Vector3 newPositionPlayer = Coordinat(Player, 50f);
             }
-
-            // Настройка RectTransform для текста
-            RectTransform textRect = enemyText.GetComponent<RectTransform>();
-            textRect.anchoredPosition = new Vector2(-20, 0);  // Размещаем текст в левом углу
-
-            // Устанавливаем размер и отступы для текста (если нужно)
-            textRect.sizeDelta = new Vector2(15,3); // Задаём ширину и высоту текста (пример)
+            else if (startDropdown == 3)
+            {
+                Vrag2.gameObject.SetActive(true);
+                Vrag3.gameObject.SetActive(true);
+                Vrag4.gameObject.SetActive(false);
+                Vrag5.gameObject.SetActive(false);
+                Vrag6.gameObject.SetActive(false);
+                Vector3 newPositionPlayer = Coordinat(Player, 100f);
+            }
+            else if (startDropdown == 4)
+            {
+                Vrag2.gameObject.SetActive(true);
+                Vrag3.gameObject.SetActive(true);
+                Vrag4.gameObject.SetActive(true);
+                Vrag5.gameObject.SetActive(false);
+                Vrag6.gameObject.SetActive(false);
+                Vector3 newPositionPlayer = Coordinat(Player, 150f);
+            }
+            else if (startDropdown == 5)
+            {
+                Vrag2.gameObject.SetActive(true);
+                Vrag3.gameObject.SetActive(true);
+                Vrag4.gameObject.SetActive(true);
+                Vrag5.gameObject.SetActive(true);
+                Vrag6.gameObject.SetActive(false);
+                Vector3 newPositionPlayer = Coordinat(Player, 200f);
+            }
+            else if (startDropdown == 6)
+            {
+                Vrag2.gameObject.SetActive(true);
+                Vrag3.gameObject.SetActive(true);
+                Vrag4.gameObject.SetActive(true);
+                Vrag5.gameObject.SetActive(true);
+                Vrag6.gameObject.SetActive(true);
+                Vector3 newPositionPlayer = Coordinat(Player, 250f);
+            }
+            //Debug.Log(startDropdown);
         }
-
-
+        else if(startDropdown != 1) 
+        {
+            Debug.Log("Выбранный пиздец: " + (selectedValue + 1));  // Плюс 1 для учёта сдвига
+            Player.transform.localPosition = new Vector3(Player.transform.localPosition.x, 122, Player.transform.localPosition.z);
+            Complexity.transform.localPosition = new Vector3(Complexity.transform.localPosition.x, 72, Complexity.transform.localPosition.z);
+            SizeMap.transform.localPosition = new Vector3(SizeMap.transform.localPosition.x, 22, SizeMap.transform.localPosition.z);
+            Vrag2.gameObject.SetActive(false);
+            Vrag3.gameObject.SetActive(false);
+            Vrag4.gameObject.SetActive(false);
+            Vrag5.gameObject.SetActive(false);
+            Vrag6.gameObject.SetActive(false);
+        }
+        startDropdown = selectedValue + 1;
+        Debug.Log(startDropdown);
+    }
+    Vector3 Coordinat(GameObject Image, float Y)
+    {
+        Player.transform.localPosition = new Vector3(Player.transform.localPosition.x, Player.transform.localPosition.y - Y, Player.transform.localPosition.z);
+        Complexity.transform.localPosition = new Vector3(Complexity.transform.localPosition.x, Complexity.transform.localPosition.y - Y, Complexity.transform.localPosition.z);
+        SizeMap.transform.localPosition = new Vector3(SizeMap.transform.localPosition.x, SizeMap.transform.localPosition.y - Y, SizeMap.transform.localPosition.z);
+        return Image.transform.localPosition;
     }
 }
