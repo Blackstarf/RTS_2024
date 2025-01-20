@@ -1,25 +1,34 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
-using static UnityEditor.Experimental.GraphView.GraphView;
+using UnityEngine.UIElements;
 
 public class AddVrags : MonoBehaviour
 {
     public TMP_Dropdown enemyCountDropdown;
     public GameObject Vrag2,Vrag3,Vrag4,Vrag5,Vrag6;
+    public UnityEngine.UI.Button ButVrag1, ButVrag2, ButVrag3, ButVrag4, ButVrag5, ButVrag6, ButPlayer;
+    private UnityEngine.UI.Button[] buttons;
     public GameObject Player, Complexity, SizeMap;
     int startDropdown = 1;
 
     void Start()
     {
+        buttons = new UnityEngine.UI.Button[] { ButVrag1, ButVrag2, ButVrag3, ButVrag4, ButVrag5, ButVrag6, ButPlayer };
+
         enemyCountDropdown.onValueChanged.AddListener(OnEnemyCountChanged);
     }
     public void OnEnemyCountChanged(int selectedValue)
     {
-        Debug.Log("Выбранное количество противников: " + (selectedValue + 1));  // Плюс 1 для учёта сдвига
+         //List<Sprite> colorList = new List<Sprite>() { Blue, Green, LightGreen, Orange, Purple, Red, Yellow, White };
+        //Debug.Log("Выбранное количество противников: " + (selectedValue + 1));
         if (startDropdown == 1) 
         {
             startDropdown = selectedValue + 1;
@@ -68,7 +77,6 @@ public class AddVrags : MonoBehaviour
                 Vrag6.gameObject.SetActive(true);
                 Vector3 newPositionPlayer = Coordinat(Player, 250f);
             }
-            //Debug.Log(startDropdown);
         }
         else if(startDropdown != 1) 
         {

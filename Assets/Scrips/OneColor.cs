@@ -1,75 +1,92 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class OneColor : MonoBehaviour
 {
-    public Sprite Blue, Green, Orange, Purple, Red, Yellow, White;
-    public TMP_Dropdown Vrag1, Vrag2, Vrag3, Vrag4, Vrag5, Vrag6, Player;
-    private TMP_Dropdown[] dropdowns;
+    public Sprite Blue, Green, LightGreen, Orange, Purple, Red, Yellow, White;
+    public GameObject Vrag1, Vrag2, Vrag3, Vrag4, Vrag5, Vrag6, Player;
+    public UnityEngine.UI.Button ButVrag1, ButVrag2, ButVrag3, ButVrag4, ButVrag5, ButVrag6, ButPlayer;
+    private GameObject[] gameobjects;
+    private Sprite[] sprites;
+    private UnityEngine.UI.Button[] buttons;
     private Dictionary<TMP_Dropdown, Sprite> previousSelections = new Dictionary<TMP_Dropdown, Sprite>();
-
     void Start()
     {
-        dropdowns = new TMP_Dropdown[] { Vrag1, Vrag2, Vrag3, Vrag4, Vrag5, Vrag6, Player };
-        foreach (TMP_Dropdown dropdown in dropdowns)
+        gameobjects = new GameObject[] { Vrag1, Vrag2, Vrag3, Vrag4, Vrag5, Vrag6, Player };
+        sprites = new Sprite[] { Blue, Green, LightGreen, Orange, Purple, Red, Yellow, White };
+        buttons = new UnityEngine.UI.Button[] { ButVrag1, ButVrag2, ButVrag3, ButVrag4, ButVrag5, ButVrag6, ButPlayer };
+
+        foreach (UnityEngine.UI.Button but in buttons)
         {
-            dropdown.onValueChanged.AddListener((index) => OnDropdownValueChanged(dropdown, index));
+            int index = Array.IndexOf(buttons, but);
+            but.onClick.AddListener(() => ButtonsColors(sprites, buttons, index, gameobjects));
         }
     }
-    void OnDropdownValueChanged(TMP_Dropdown changedDropdown, int selectedIndex)
+    void ButtonsColors(Sprite[] sprites, UnityEngine.UI.Button[] buttons, int index, GameObject[] gameobjects)
     {
-        // Получаем выбранный спрайт
-        Sprite selectedSprite = changedDropdown.options[selectedIndex].image;
+        // Получите текущий спрайт кнопки
+        UnityEngine.UI.Image buttonImage = buttons[index].GetComponent<UnityEngine.UI.Image>();
 
-        // Если был предыдущий выбор, возвращаем его обратно
-        if (previousSelections.ContainsKey(changedDropdown))
+        if (buttonImage != null)
         {
-            Sprite previousSprite = previousSelections[changedDropdown];
-            if (previousSprite != null)
-            {
-                AddSpriteToOtherDropdowns(changedDropdown, previousSprite);
-            }
-        }
-        RemoveSpriteFromOtherDropdowns(changedDropdown, selectedSprite);
+            Sprite currentSprite = buttonImage.sprite;
+            Sprite ButSpriteNOW;
+            Debug.Log(currentSprite);
 
-        previousSelections[changedDropdown] = selectedSprite;
-    }
-    // Удаляет выбранный спрайт из всех других Dropdown
-    void RemoveSpriteFromOtherDropdowns(TMP_Dropdown currentDropdown, Sprite spriteToRemove)
-    {
-        foreach (TMP_Dropdown dropdown in dropdowns)
-        {
-            if (dropdown != currentDropdown && dropdown.gameObject.activeSelf)
+            Sprite randomSprite = sprites[UnityEngine.Random.Range(0, sprites.Length)];
+            int i = 0;
+            while (i != 1)
             {
-                for (int i = dropdown.options.Count - 1; i >= 0; i--)
+                if (currentSprite != randomSprite)
                 {
-                    if (dropdown.options[i].image == spriteToRemove)
+                    int j = 0;
+                    List<Sprite> colorList= new List<Sprite>() { Blue, Green, LightGreen, Orange, Purple, Red, Yellow, White };
+                    while (j != 1)
                     {
-                        dropdown.options.RemoveAt(i);
+                        for(int f =0;f< gameobjects.Length;f++)
+                        {
+                            Debug.Log(gameobjects[f].gameObject.activeSelf);
+                            if (gameobjects[f].gameObject.activeSelf == true)
+                            {
+                                UnityEngine.UI.Image buttonImageNOW = buttons[f].GetComponent<UnityEngine.UI.Image>();
+                                ButSpriteNOW = buttonImageNOW.sprite;
+                                colorList.Remove(ButSpriteNOW);     
+                            }
+                        }
+                        randomSprite = colorList[UnityEngine.Random.Range(0, colorList.Count)];
+                        buttonImage.sprite = randomSprite;
+                        j++;
                     }
+                    colorList = new List<Sprite>() { Blue, Green, Orange, Purple, Red, Yellow, White };
+                    j = 0;
+                    i++;
                 }
-                dropdown.RefreshShownValue();  // Обновляем отображение
+                else
+                {
+                    randomSprite = sprites[UnityEngine.Random.Range(0, sprites.Length)];
+                    Debug.Log("Уже используется,но изменилось");
+                }
             }
+            
+            i = 0;
+        }
+        else
+        {
+            Debug.LogError("Кнопка не имеет компонента Image");
         }
     }
 
-    // Возвращает спрайт в другие Dropdown
-    void AddSpriteToOtherDropdowns(TMP_Dropdown currentDropdown, Sprite spriteToAdd)
-    {
-        foreach (TMP_Dropdown dropdown in dropdowns)
-        {
-            if (dropdown != currentDropdown && dropdown.gameObject.activeSelf)
-            {
-                TMP_Dropdown.OptionData newOption = new TMP_Dropdown.OptionData
-                {
-                    image = spriteToAdd
-                };
-                dropdown.options.Add(newOption);
-                dropdown.RefreshShownValue();
-            }
-        }
-    }
+    //void ChangeImage(Sprite RandomColor)
+    //{
+    //    // Присвойте существующий спрайт переменной newSprite
+    //    Sprite newSprite = RandomColor;
+
+    //    // Установите новый спрайт для кнопки
+    //    GetComponent<UnityEngine.UI.Image>().sprite = RandomColor;
+    //}
 }
