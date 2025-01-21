@@ -88,7 +88,7 @@ public class AddVrags : MonoBehaviour
             Sprite ButSpriteNOW, randomSprite;
             bool[] vragsNew= { Vrag1.gameObject.activeSelf, Vrag2.gameObject.activeSelf, Vrag3.gameObject.activeSelf, Vrag4.gameObject.activeSelf, Vrag5.gameObject.activeSelf, Vrag6.gameObject.activeSelf, Player.gameObject.activeSelf };
             int y=0;
-            while (y != 150)
+            while (y != 7)
             {
                 for (int i = 0; i < vragsNew.Length; i++)
                 {
@@ -104,51 +104,56 @@ public class AddVrags : MonoBehaviour
                                 UnityEngine.UI.Image buttonImageNOW = buttons[j].GetComponent<UnityEngine.UI.Image>();
                                 ButSpriteNOW = buttonImageNOW.sprite;
                                 colorList.Remove(ButSpriteNOW);
-                                break;
+                                //break;
                             }
                         }
                         //Debug.Log(colorList.Count);
-                        randomSprite = colorList[UnityEngine.Random.Range(0, colorList.Count)];
-                        if (currentSprite == randomSprite)
+                        if (colorList.Count == 0)
                         {
-                            Debug.Log("Почти пиздец");
-                            while (currentSprite == randomSprite)
-                            {
-                                randomSprite = colorList[UnityEngine.Random.Range(0, colorList.Count)];
-                            }
-                            buttonImage.sprite = randomSprite;
-
+                            Debug.Log("colorList.Count=0");
                         }
                         else
                         {
-                            buttonImage.sprite = randomSprite;
-                        }
+                            randomSprite = colorList[UnityEngine.Random.Range(0, colorList.Count)];
+                            if (currentSprite == randomSprite)
+                            {
+                                Debug.Log("Почти пиздец");
+                                while (currentSprite == randomSprite)
+                                {
+                                    randomSprite = colorList[UnityEngine.Random.Range(0, colorList.Count)];
+                                }
+                                buttonImage.sprite = randomSprite;
 
+                            }
+                            else
+                            {
+                                buttonImage.sprite = randomSprite;
+                            }
+                        }
                     }
-                    colorList = new List<Sprite>() { Blue, Green, Orange, Purple, Red, Yellow, White };
+                   
                 }
                 vrags = vragsNew;
-                //int x = 0;
-                //for(int i = 0; i < buttons.Length; i++)
+                //for (int i = 0; i < buttons.Length; i++)
                 //{
                 //    UnityEngine.UI.Image buttonImage = buttons[i].GetComponent<UnityEngine.UI.Image>();
                 //    Sprite currentSprite = buttonImage.sprite;
-                //    for (int j = 0; j< buttons.Length; j++)
+                //    for (int j = 0; j < buttons.Length; j++)
                 //    {
                 //        UnityEngine.UI.Image buttonImageNOW = buttons[j].GetComponent<UnityEngine.UI.Image>();
                 //        Sprite ButSpriteNOW2 = buttonImageNOW.sprite;
-                //        if (currentSprite== ButSpriteNOW2)
+                //        if (currentSprite != ButSpriteNOW2)
                 //        {
-                //            Debug.Log(ButSpriteNOW2);
-                //            //y++;
+                //            //randomSprite = colorList[UnityEngine.Random.Range(0, colorList.Count)];
+                //            //buttonImage.sprite = randomSprite;
+                //            //colorList.Remove(ButSpriteNOW2);
+                //            //Debug.Log(ButSpriteNOW2);
+                //            y++;
                 //        }
                 //    }
                 //}
-                //if (x == 0)
-                //{
-                //    //y++;
-                //}
                 y++;
+                colorList = new List<Sprite>() { Blue, Green, Orange, Purple, Red, Yellow, White };
             }
 
         }
