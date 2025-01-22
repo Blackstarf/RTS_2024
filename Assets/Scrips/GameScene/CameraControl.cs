@@ -25,6 +25,6 @@ public class CameraControl : MonoBehaviour
         transform.Translate(new Vector3(hor,0,ver)*Time.deltaTime*_mult*Speed, Space.Self);
 
         transform.position += transform.up * ZoomSpeed * Time.deltaTime * Input.GetAxis("Mouse ScrollWheel");
-        transform.position=new Vector3(transform.position.x,Mathf.Clamp(transform.position.y,-20f,40f),transform.position.z);
+        transform.position=new Vector3(transform.position.x,Mathf.Clamp(transform.position.y,-5f,30f),transform.position.z);
     }
 }
