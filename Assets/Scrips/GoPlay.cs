@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 public class GoPlay : MonoBehaviour
 {
-    public TMP_InputField inputField;
+    public TMP_InputField inputFieldSizeMap;
+    public TMP_InputField inputFieldPlayer;
     public Button saveButton; 
     public void SwitchScene()
     {
@@ -20,8 +21,11 @@ public class GoPlay : MonoBehaviour
 
     public void SaveData()
     {
-        float inputData = (float)int.Parse(inputField.text);
+        string NamePlayer = inputFieldPlayer.text;
+        float inputData = (float)int.Parse(inputFieldSizeMap.text);
         PlayerPrefs.SetFloat("SizeMap", inputData);
+        PlayerPrefs.Save();
+        PlayerPrefs.SetString("NamePlay", NamePlayer);
         PlayerPrefs.Save();
         Debug.Log("SizeMap: " + inputData);
     }

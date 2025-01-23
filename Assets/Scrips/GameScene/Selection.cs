@@ -1,0 +1,81 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NewBehaviourScript : MonoBehaviour
+{
+    public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
+    public Camera mainCamera;
+
+    private List<GameObject> selectedBuldings = new List<GameObject>(); // Список выделенных юнитов
+    private Vector2 startMousePos; // Начальная позиция мыши
+    private Vector2 endMousePos; // Конечная позиция мыши
+    private bool isSelecting = false; // Флаг для отслеживания состояния выделения
+    private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+    void UpdateSelectionBox()
+    {
+        float width = endMousePos.x - startMousePos.x;
+        float height = endMousePos.y - startMousePos.y;
+
+        // Установите размер selectionBox
+        selectionBoxUI.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
+
+        // Преобразуйте экранные координаты в локальные
+        Vector2 localStart;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(selectionBoxUI.parent.GetComponent<RectTransform>(), startMousePos, null, out localStart);
+
+        // Установите позицию selectionBox в центр между startMousePos и endMousePos
+        selectionBoxUI.anchoredPosition = localStart + new Vector2(width / 2, height / 2);
+    }
+
+    void SelectBuildingInBox()
+    {
+        DeselectAllUnits();
+
+        Vector2 min = Vector2.Min(startMousePos, endMousePos);
+        Vector2 max = Vector2.Max(startMousePos, endMousePos);
+
+        foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit"))
+        {
+            Vector3 screenPos = mainCamera.WorldToScreenPoint(unit.transform.position);
+
+            if (screenPos.x >= min.x && screenPos.x <= max.x &&
+                screenPos.y >= min.y && screenPos.y <= max.y)
+            {
+                SelectBuild(unit);
+            }
+        }
+    }
+    void SelectBuild(GameObject unit)
+    {
+        selectedBuldings.Add(unit);
+        Transform selectionSprite = unit.transform.Find("SelectionSprite");
+        if (selectionSprite != null)
+        {
+            selectionSprite.gameObject.SetActive(true);
+        }
+    }
+    void DeselectAllUnits()
+    {
+        foreach (GameObject unit in selectedBuldings)
+        {
+            Transform selectionSprite = unit.transform.Find("SelectionSprite");
+            if (selectionSprite != null)
+            {
+                selectionSprite.gameObject.SetActive(false);
+            }
+        }
+        selectedBuldings.Clear();
+    }
+}

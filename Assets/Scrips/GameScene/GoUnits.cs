@@ -2,141 +2,163 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class GoUnits : MonoBehaviour
 {
-    private Camera mainCamera;
-    private List<GameObject> selectedObjects = new List<GameObject>(); // Список выделенных объектов
+    public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
+    public Camera mainCamera;
 
-    private Vector2 startMousePos; // Начальная точка для выделения рамкой
-    private bool isSelecting = false;
-
-    public Texture2D selectionTexture; // Текстура рамки выделения
-
-    void Start()
+    private List<GameObject> selectedUnits = new List<GameObject>(); // Список выделенных юнитов
+    private Vector2 startMousePos; // Начальная позиция мыши
+    private Vector2 endMousePos; // Конечная позиция мыши
+    private bool isSelecting = false; // Флаг для отслеживания состояния выделения
+    private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
+    private void Start()
     {
-        mainCamera = Camera.main;
+        selectionBoxUI.gameObject.SetActive(false);
     }
-
     void Update()
     {
-        HandleSelectionArea(); // Обработка выделения рамкой
-        HandleMovement(); // Перемещение объектов
-    }
-    void HandleSelectionArea()
-    {
-        if (Input.GetMouseButtonDown(0)) // Начало выделения рамкой
+        if (!isSelecting)
         {
-            isSelecting = true;
-            startMousePos = Input.mousePosition;
+            if (IsPointerOverNoSelectionZone())
+            {
+                isInNoSelectionZone = true;
+                return;
+            }
+            else
+            {
+                isInNoSelectionZone = false;
+            }
         }
 
-        if (Input.GetMouseButtonUp(0)) // Завершение выделения рамкой
+        HandleSelection();
+        HandleMovement();
+    }
+
+    void HandleSelection()
+    {
+        if (Input.GetMouseButtonDown(0) && !isInNoSelectionZone)
+        {
+            startMousePos = Input.mousePosition;
+            isSelecting = true;
+            selectionBoxUI.gameObject.SetActive(true);
+            selectionBoxUI.sizeDelta = Vector2.zero; // Сброс размера
+            selectionBoxUI.anchoredPosition = startMousePos; // Установите начальную позицию
+        }
+
+        if (Input.GetMouseButton(0) && isSelecting)
+        {
+            endMousePos = Input.mousePosition;
+            UpdateSelectionBox();
+        }
+
+        if (Input.GetMouseButtonUp(0) && isSelecting)
         {
             isSelecting = false;
-            Debug.Log("Вызываем SelectObjectsInArea"); // Проверка вызова
-            SelectObjectsInArea(); // Вызов метода
+            selectionBoxUI.gameObject.SetActive(false);
+            SelectUnitsInBox();
         }
     }
-    void SelectObjectsInArea()
+
+    void UpdateSelectionBox()
     {
-        Debug.Log("SelectObjectsInArea вызван."); // Проверяем вызов метода
-        Vector2 endMousePos = Input.mousePosition;
+        float width = endMousePos.x - startMousePos.x;
+        float height = endMousePos.y - startMousePos.y;
 
-        // Если область выделения очень маленькая, выполняем одиночное выделение
-        if (Vector2.Distance(startMousePos, endMousePos) < 10f)
+        // Установите размер selectionBox
+        selectionBoxUI.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
+
+        // Преобразуйте экранные координаты в локальные
+        Vector2 localStart;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(selectionBoxUI.parent.GetComponent<RectTransform>(), startMousePos, null, out localStart);
+
+        // Установите позицию selectionBox в центр между startMousePos и endMousePos
+        selectionBoxUI.anchoredPosition = localStart + new Vector2(width / 2, height / 2);
+    }
+
+    void SelectUnitsInBox()
+    {
+        DeselectAllUnits();
+
+        Vector2 min = Vector2.Min(startMousePos, endMousePos);
+        Vector2 max = Vector2.Max(startMousePos, endMousePos);
+
+        foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit"))
         {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            Vector3 screenPos = mainCamera.WorldToScreenPoint(unit.transform.position);
 
-            if (Physics.Raycast(ray, out hit))
+            if (screenPos.x >= min.x && screenPos.x <= max.x &&
+                screenPos.y >= min.y && screenPos.y <= max.y)
             {
-                GameObject clickedObject = hit.collider.gameObject;
-
-                // Если объект уже выделен, снимаем выделение
-                if (selectedObjects.Contains(clickedObject))
-                {
-                    selectedObjects.Remove(clickedObject);
-                    Debug.Log($"Снято выделение с объекта: {clickedObject.name}");
-                }
-                else
-                {
-                    selectedObjects.Add(clickedObject);
-                    Debug.Log($"Выделен объект: {clickedObject.name}");
-                }
+                SelectUnit(unit);
             }
-            return;
-        }
-
-        // Обработка выделения в области
-        Rect selectionRect = new Rect(
-            Mathf.Min(startMousePos.x, endMousePos.x),
-            Mathf.Min(startMousePos.y, endMousePos.y),
-            Mathf.Abs(startMousePos.x - endMousePos.x),
-            Mathf.Abs(startMousePos.y - endMousePos.y)
-        );
-
-        // Проверяем объекты с компонентом NavMeshAgent
-        foreach (NavMeshAgent agent in FindObjectsOfType<NavMeshAgent>())
-        {
-            Vector3 screenPos = mainCamera.WorldToScreenPoint(agent.transform.position);
-            if (selectionRect.Contains(screenPos) && !selectedObjects.Contains(agent.gameObject))
-            {
-                selectedObjects.Add(agent.gameObject);
-                Debug.Log($"Выделен объект в рамке: {agent.gameObject.name}");
-            }
-        }
-
-        // Лог всех выделенных объектов
-        if (selectedObjects.Count > 0)
-        {
-            Debug.Log("Выделенные объекты: " + string.Join(", ", selectedObjects.ConvertAll(obj => obj.name)));
-        }
-        else
-        {
-            Debug.Log("Нет выделенных объектов.");
         }
     }
-    // Перемещение выделенных объектов
+
     void HandleMovement()
     {
-        if (Input.GetMouseButtonDown(0) && selectedObjects.Count > 0) // ПКМ
+        if (selectedUnits.Count > 0 && Input.GetMouseButtonDown(1))
         {
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit))
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                Vector3 targetPoint = hit.point;
-
-                // Устанавливаем точку назначения для всех выделенных объектов
-                foreach (GameObject obj in selectedObjects)
+                foreach (GameObject unit in selectedUnits)
                 {
-                    NavMeshAgent agent = obj.GetComponent<NavMeshAgent>();
+                    NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
                     if (agent != null)
                     {
-                        agent.SetDestination(targetPoint);
+                        agent.SetDestination(hit.point);
                     }
                 }
             }
         }
     }
 
-    void OnGUI()
+    void SelectUnit(GameObject unit)
     {
-        if (isSelecting)
+        selectedUnits.Add(unit);
+        Transform selectionSprite = unit.transform.Find("SelectionSprite");
+        if (selectionSprite != null)
         {
-            // Рисуем прямоугольник выделения
-            Rect selectionRect = new Rect(
-                Mathf.Min(startMousePos.x, Input.mousePosition.x),
-                Screen.height - Mathf.Max(startMousePos.y, Input.mousePosition.y),
-                Mathf.Abs(startMousePos.x - Input.mousePosition.x),
-                Mathf.Abs(startMousePos.y - Input.mousePosition.y)
-            );
-
-            // Отображаем текстуру
-            GUI.DrawTexture(selectionRect, selectionTexture);
+            selectionSprite.gameObject.SetActive(true);
         }
+    }
+
+    void DeselectAllUnits()
+    {
+        foreach (GameObject unit in selectedUnits)
+        {
+            Transform selectionSprite = unit.transform.Find("SelectionSprite");
+            if (selectionSprite != null)
+            {
+                selectionSprite.gameObject.SetActive(false);
+            }
+        }
+        selectedUnits.Clear();
+    }
+
+    /// <summary>
+    /// Проверяет, находится ли указатель над зоной, где выделение запрещено.
+    /// </summary>
+    /// <returns>True, если указатель находится над зоной, где выделение запрещено, иначе false.</returns>
+    private bool IsPointerOverNoSelectionZone()
+    {
+        PointerEventData eventDataCurrentPos = new PointerEventData(EventSystem.current);
+        eventDataCurrentPos.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventDataCurrentPos, results);
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject.CompareTag("NoSelectionZone"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

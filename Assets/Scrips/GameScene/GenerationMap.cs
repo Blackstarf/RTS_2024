@@ -9,9 +9,8 @@ public class GenerationMap : MonoBehaviour
     public GameObject Tree, Rock;
     public GameObject plane;
     private GameObject[] models;
-    public GameObject townHall; // Модель ратуши
     public int objectCount = 100; // Количество объектов
-    public Vector2 reservedAreaSize = new Vector2(3, 3); // Размер зарезервированной области
+    private Vector2 reservedAreaSize = new Vector2(20, 20); // Размер зарезервированной области
     public float perlinScale = 10f; // Масштаб шума Перлина
     public float perlinThreshold = 0.5f; // Порог значения шума для размещения объекта
     public float minDistance = 5f; // Минимальное расстояние между объектами
@@ -73,11 +72,17 @@ public class GenerationMap : MonoBehaviour
                     continue; // Пропускаем создание объекта, если он слишком близко к другому
                 }
 
+                // Проверяем границы Plane
+                if (Mathf.Abs(randomPosition.x+10) > planeSize.x / 2 || Mathf.Abs(randomPosition.z-10) > planeSize.z / 2)
+                {
+                    continue; // Пропускаем создание объекта, если он выходит за границы Plane
+                }
+
                 // Случайная модель из списка
                 GameObject randomModel = models[UnityEngine.Random.Range(0, models.Length)];
                 if (randomModel == Tree)
                 {
-                    randomPosition.y = 2;
+                    randomPosition.y = 2; // Устанавливаем высоту для деревьев
                 }
 
                 // Создаем модель на сгенерированных координатах

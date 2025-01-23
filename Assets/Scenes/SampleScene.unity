@@ -3894,18 +3894,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GoPlay, Assembly-CSharp
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &604215960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13739,7 +13727,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6831a1511df295e40b14d7986b4ef80b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 1956467873}
+  inputFieldSizeMap: {fileID: 1956467873}
+  inputFieldPlayer: {fileID: 923558914}
   saveButton: {fileID: 604215959}
 --- !u!224 &1766251700
 RectTransform:
