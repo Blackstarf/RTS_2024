@@ -13,7 +13,8 @@ public class SizeMapPlayer : MonoBehaviour
     void Start()
     {
         planeWidth = PlayerPrefs.GetFloat("SizeMap");
-        planeLength = PlayerPrefs.GetFloat("SizeMap");
+        planeWidth = Mathf.FloorToInt(Mathf.Sqrt(planeWidth));
+        planeLength = planeWidth;
         // Устанавливаем текст
         TMPPlayer.text = NamePlayer;
         // Примените размеры к плоскости

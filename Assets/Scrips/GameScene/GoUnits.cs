@@ -9,7 +9,8 @@ public class GoUnits : MonoBehaviour
 {
     public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
     public Camera mainCamera;
-
+    public GameObject Archer, Orc, Healer, Heavy, Light_infantry, Converter, Villager;
+    private GameObject[] UnitsObject;
     private List<GameObject> selectedUnits = new List<GameObject>(); // Список выделенных юнитов
     private Vector2 startMousePos; // Начальная позиция мыши
     private Vector2 endMousePos; // Конечная позиция мыши
@@ -17,6 +18,7 @@ public class GoUnits : MonoBehaviour
     private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
     private void Start()
     {
+        UnitsObject= new GameObject[] { Archer, Orc, Healer, Heavy, Light_infantry, Converter, Villager };
         selectionBoxUI.gameObject.SetActive(false);
     }
     void Update()
@@ -33,7 +35,31 @@ public class GoUnits : MonoBehaviour
                 isInNoSelectionZone = false;
             }
         }
+        // Выводим имена всех выделенных объектов в консоль
 
+        //List<string> NumUnit = CheckNames(selectedUnits);
+        //if(NumUnit.Count == 1) 
+        //{
+        //    //for (int i = 0; i < NumUnit.Count; i++)
+        //    //{
+        //    //    if (NumUnit[i]= UnitsObject[i])
+        //    //    {
+
+        //    //    }
+        //    //}
+        //}
+        if (selectedUnits.Count > 0)
+        {
+            string selectedUnitNames = "Выделены объекты: ";
+            foreach (GameObject unit in selectedUnits)
+            {
+                selectedUnitNames += unit.name + ", ";
+            }
+        }
+        else
+        {
+            Debug.Log("Нет выделенных объектов.");
+        }
         HandleSelection();
         HandleMovement();
     }
@@ -81,22 +107,27 @@ public class GoUnits : MonoBehaviour
 
     void SelectUnitsInBox()
     {
-        DeselectAllUnits();
+        DeselectAllUnits(); // Сбрасываем предыдущее выделение
 
-        Vector2 min = Vector2.Min(startMousePos, endMousePos);
-        Vector2 max = Vector2.Max(startMousePos, endMousePos);
+        Vector2 min = Vector2.Min(startMousePos, endMousePos); // Нижний левый угол выделенной области
+        Vector2 max = Vector2.Max(startMousePos, endMousePos); // Верхний правый угол выделенной области
 
+        // Ищем все объекты с тегом "Unit"
         foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit"))
         {
-            Vector3 screenPos = mainCamera.WorldToScreenPoint(unit.transform.position);
+            Vector3 screenPos = mainCamera.WorldToScreenPoint(unit.transform.position); // Позиция объекта на экране
 
+            // Проверяем, попадает ли объект в выделенную область
             if (screenPos.x >= min.x && screenPos.x <= max.x &&
                 screenPos.y >= min.y && screenPos.y <= max.y)
             {
-                SelectUnit(unit);
+                SelectUnit(unit); // Добавляем объект в список выделенных
             }
         }
+
+        
     }
+
 
     void HandleMovement()
     {
@@ -111,13 +142,13 @@ public class GoUnits : MonoBehaviour
                     NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
                     if (agent != null)
                     {
+                        Debug.Log(unit);
                         agent.SetDestination(hit.point);
                     }
                 }
             }
         }
     }
-
     void SelectUnit(GameObject unit)
     {
         selectedUnits.Add(unit);
@@ -140,7 +171,6 @@ public class GoUnits : MonoBehaviour
         }
         selectedUnits.Clear();
     }
-
     /// <summary>
     /// Проверяет, находится ли указатель над зоной, где выделение запрещено.
     /// </summary>
@@ -160,28 +190,42 @@ public class GoUnits : MonoBehaviour
         }
         return false;
     }
+    public List<string> CheckNames(List<GameObject> objects)
+    {
+        List<string> resultNames = new List<string>();
+        int status = 1; // Начальный статус — все имена одинаковые
+
+        if (objects.Count == 0)
+        {
+            return resultNames; // Если список пустой, возвращаем пустой список
+        }
+
+        string firstName = objects[0].name; // Берём имя первого объекта
+
+        // Проходим по всем объектам и проверяем, одинаковые ли имена
+        foreach (GameObject obj in objects)
+        {
+            if (obj.name != firstName)
+            {
+                status = 2; // Если есть хоть одно отличие, меняем статус на 2
+                break; // Прекращаем проверку, так как достаточно одного отличия
+            }
+        }
+
+        // Если все имена одинаковые
+        if (status == 1)
+        {
+            resultNames.Add(firstName); // Добавляем имя в список
+        }
+        else
+        {
+            // Если имена разные, добавляем все имена в список
+            foreach (var obj in objects)
+            {
+                resultNames.Add(obj.name);
+            }
+        }
+
+        return resultNames; // Возвращаем список имён
+    }
 }
-
-//private Camera MainCamera;
-//private NavMeshAgent Agent;
-
-//// Start is called before the first frame update
-//void Start()
-//{
-//    MainCamera = Camera.main;
-//    Agent = GetComponent<NavMeshAgent>();
-//}
-
-//// Update is called once per frame
-//void Update()
-//{
-//    if (Input.GetMouseButtonDown(0))
-//    {
-//        RaycastHit hit;
-//        if (Physics.Raycast(MainCamera.ScreenPointToRay(Input.mousePosition), out hit))
-//        {
-//            Agent.SetDestination(hit.point);
-//        }
-//    }
-
-//}

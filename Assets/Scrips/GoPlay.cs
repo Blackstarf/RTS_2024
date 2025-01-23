@@ -10,15 +10,6 @@ public class GoPlay : MonoBehaviour
     public TMP_InputField inputFieldSizeMap;
     public TMP_InputField inputFieldPlayer;
     public Button saveButton; 
-    public void SwitchScene()
-    {
-        SceneManager.LoadScene("GameGame");
-    }
-    private void Start()
-    {
-        saveButton.onClick.AddListener(SaveData);
-    }
-
     public void SaveData()
     {
         string NamePlayer = inputFieldPlayer.text;
@@ -28,5 +19,13 @@ public class GoPlay : MonoBehaviour
         PlayerPrefs.SetString("NamePlay", NamePlayer);
         PlayerPrefs.Save();
         Debug.Log("SizeMap: " + inputData);
+        if (inputData < 10000)
+        {
+            if (inputData >= 2500)
+            {
+                SceneManager.LoadScene("GameGame");
+            }
+        }
+        
     }
 }

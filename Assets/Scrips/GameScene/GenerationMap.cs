@@ -9,7 +9,8 @@ public class GenerationMap : MonoBehaviour
     public GameObject Tree, Rock;
     public GameObject plane;
     private GameObject[] models;
-    public int objectCount = 100; // Количество объектов
+    public float density = 0.005f; // Плотность объектов (например, 0.01 = 1 объект на 100 единиц площади)
+    private int objectCount; // Количество объектов, рассчитывается автоматически
     private Vector2 reservedAreaSize = new Vector2(20, 20); // Размер зарезервированной области
     public float perlinScale = 10f; // Масштаб шума Перлина
     public float perlinThreshold = 0.5f; // Порог значения шума для размещения объекта
@@ -26,6 +27,10 @@ public class GenerationMap : MonoBehaviour
 
         // Получаем размеры Plane
         Vector3 planeSize = plane.GetComponent<Renderer>().bounds.size;
+
+        // Рассчитываем количество объектов на основе плотности
+        float planeArea = planeSize.x * planeSize.z; // Площадь плоскости
+        objectCount = Mathf.RoundToInt(planeArea * density); // Количество объектов пропорционально плотности
 
         // Вычисляем границы резервируемой области
         Vector2 reservedMin = new Vector2(-reservedAreaSize.x / 2, -reservedAreaSize.y / 2);
@@ -73,7 +78,7 @@ public class GenerationMap : MonoBehaviour
                 }
 
                 // Проверяем границы Plane
-                if (Mathf.Abs(randomPosition.x+10) > planeSize.x / 2 || Mathf.Abs(randomPosition.z-10) > planeSize.z / 2)
+                if (Mathf.Abs(randomPosition.x + 10) > planeSize.x / 2 || Mathf.Abs(randomPosition.z - 10) > planeSize.z / 2)
                 {
                     continue; // Пропускаем создание объекта, если он выходит за границы Plane
                 }
