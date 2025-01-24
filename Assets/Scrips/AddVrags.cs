@@ -1,11 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
@@ -92,7 +88,6 @@ public class AddVrags : MonoBehaviour
             {
                 for (int i = 0; i < vragsNew.Length; i++)
                 {
-                    //colorList = new List<Sprite>() { Blue, Green, Orange, Purple, Red, Yellow, White };
                     if (vrags[i] != vragsNew[i])
                     {
                         UnityEngine.UI.Image buttonImage = buttons[i].GetComponent<UnityEngine.UI.Image>();
@@ -134,24 +129,6 @@ public class AddVrags : MonoBehaviour
                    
                 }
                 vrags = vragsNew;
-                //for (int i = 0; i < buttons.Length; i++)
-                //{
-                //    UnityEngine.UI.Image buttonImage = buttons[i].GetComponent<UnityEngine.UI.Image>();
-                //    Sprite currentSprite = buttonImage.sprite;
-                //    for (int j = 0; j < buttons.Length; j++)
-                //    {
-                //        UnityEngine.UI.Image buttonImageNOW = buttons[j].GetComponent<UnityEngine.UI.Image>();
-                //        Sprite ButSpriteNOW2 = buttonImageNOW.sprite;
-                //        if (currentSprite != ButSpriteNOW2)
-                //        {
-                //            //randomSprite = colorList[UnityEngine.Random.Range(0, colorList.Count)];
-                //            //buttonImage.sprite = randomSprite;
-                //            //colorList.Remove(ButSpriteNOW2);
-                //            //Debug.Log(ButSpriteNOW2);
-                //            y++;
-                //        }
-                //    }
-                //}
                 y++;
                 colorList = new List<Sprite>() { Blue, Green, Orange, Purple, Red, Yellow, White };
             }

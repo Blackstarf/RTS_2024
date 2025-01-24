@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
@@ -9,8 +10,13 @@ public class GoUnits : MonoBehaviour
 {
     public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
     public Camera mainCamera;
-    public GameObject Archer, Orc, Healer, Heavy, Light_infantry, Converter, Villager;
-    private GameObject[] UnitsObject;
+    public Sprite Archer, Orc, Healer, Heavy, Light_infantry, Converter, Villager;
+    public Image UnitOrBuilds;
+    public TMP_Text NameUnit;
+    public GameObject Panel,PanellotUnits;
+    public Image[] Images;
+    public Image[] ImagesHp;
+    private Sprite[] UnitsObject;
     private List<GameObject> selectedUnits = new List<GameObject>(); // Список выделенных юнитов
     private Vector2 startMousePos; // Начальная позиция мыши
     private Vector2 endMousePos; // Конечная позиция мыши
@@ -18,7 +24,7 @@ public class GoUnits : MonoBehaviour
     private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
     private void Start()
     {
-        UnitsObject= new GameObject[] { Archer, Orc, Healer, Heavy, Light_infantry, Converter, Villager };
+        UnitsObject= new Sprite[] { Archer, Orc, Healer, Heavy, Light_infantry, Converter, Villager };
         selectionBoxUI.gameObject.SetActive(false);
     }
     void Update()
@@ -35,30 +41,45 @@ public class GoUnits : MonoBehaviour
                 isInNoSelectionZone = false;
             }
         }
-        // Выводим имена всех выделенных объектов в консоль
-
-        //List<string> NumUnit = CheckNames(selectedUnits);
-        //if(NumUnit.Count == 1) 
-        //{
-        //    //for (int i = 0; i < NumUnit.Count; i++)
-        //    //{
-        //    //    if (NumUnit[i]= UnitsObject[i])
-        //    //    {
-
-        //    //    }
-        //    //}
-        //}
-        if (selectedUnits.Count > 0)
+        //Меняем картинку
+        foreach (Image obj in Images)
         {
-            string selectedUnitNames = "Выделены объекты: ";
-            foreach (GameObject unit in selectedUnits)
-            {
-                selectedUnitNames += unit.name + ", ";
-            }
+            obj.gameObject.SetActive(false);
         }
-        else
+        for (int i = 0; i < selectedUnits.Count; i++)
         {
-            Debug.Log("Нет выделенных объектов.");
+            if (selectedUnits.Count == 1)
+            {
+                Panel.SetActive(true);
+                PanellotUnits.SetActive(false);
+                for (int j = 0; j < UnitsObject.Length; j++)
+                {
+                    if (selectedUnits[0].name == UnitsObject[j].name)
+                    {
+                        UnitOrBuilds.sprite = UnitsObject[j];
+                        NameUnit.text = UnitsObject[j].name;
+                    }
+                }
+            }else if(selectedUnits.Count > 1)
+            {
+                Panel.SetActive(false);
+                PanellotUnits.SetActive(true);
+                
+                for (int j = 0;j < selectedUnits.Count; j++)
+                {
+                    Images[i].gameObject.SetActive(true);
+                    for (int x = 0; x < UnitsObject.Length; x++)
+                    {
+                        Debug.Log(UnitsObject[x].name + "  ");
+                        if (selectedUnits[i].name == UnitsObject[x].name)
+                        {
+                            Images[i].sprite = UnitsObject[x];
+                            break;
+                        }
+                        
+                    }
+                }
+            }
         }
         HandleSelection();
         HandleMovement();
