@@ -8,6 +8,7 @@ using UnityEngine.AI;
 public class BreakRockTree : MonoBehaviour
 {
     public TMP_Text NumberWood, NumberWoodUnit, NumberRock, NumberRockUnit;
+    public GameObject ZonePlayer;
     private GameObject selectedObject; // Ссылка на выделенный объект
 
     void Update()
@@ -23,7 +24,7 @@ public class BreakRockTree : MonoBehaviour
                 GameObject clickedObject = hit.collider.gameObject;
 
                 // Если объект можно выделить
-                if (clickedObject.CompareTag("Selectable"))
+                if (clickedObject.CompareTag("Selectable") || clickedObject.CompareTag("Unit"))
                 {
                     SelectObject(clickedObject);
 
@@ -81,10 +82,24 @@ public class BreakRockTree : MonoBehaviour
             {
                 NumberRock.text = Convert.ToString(int.Parse(NumberRock.text) + 1);
                 NumberRockUnit.text = Convert.ToString(int.Parse(NumberRockUnit.text) + 1);
+            }else if(targetObject.name == "farm_model(Clone)")
+            {
+                Transform selectionSprite = ZonePlayer.transform.Find("granary_model(Clone)");
+                if (selectionSprite != null)
+                {
+                    Debug.Log("Мне есть куда сдавать зерно");
+                }
+                else
+                {
+                    Debug.Log("Слыш ты сначал построй мельницу");
+                }
             }
 
             // Уничтожаем объект
-            Destroy(targetObject);
+            if(targetObject.name != "farm_model(Clone)")
+            {
+                Destroy(targetObject);
+            }
         }
 
         // Разрешаем рабочему двигаться снова

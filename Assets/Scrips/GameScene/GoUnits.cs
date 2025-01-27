@@ -10,7 +10,7 @@ public class GoUnits : MonoBehaviour
 {
     public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
     public Camera mainCamera;
-    public Sprite Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker;
+    public Sprite Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker, Town_Center;
     public Image UnitOrBuilds;
     public TMP_Text NameUnit;
     public GameObject Panel,PanellotUnits;
@@ -24,7 +24,7 @@ public class GoUnits : MonoBehaviour
     private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
     private void Start()
     {
-        UnitsObject= new Sprite[] { Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker };
+        UnitsObject= new Sprite[] { Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker, Town_Center };
         selectionBoxUI.gameObject.SetActive(false);
     }
     void Update()
@@ -57,7 +57,14 @@ public class GoUnits : MonoBehaviour
                     if (selectedUnits[0].name == UnitsObject[j].name)
                     {
                         UnitOrBuilds.sprite = UnitsObject[j];
-                        NameUnit.text = UnitsObject[j].name;
+                        if(UnitsObject[j].name== "Town_Center")
+                        {
+                            NameUnit.text = "Ратуша";
+                        }
+                        else
+                        {
+                            NameUnit.text = UnitsObject[j].name;
+                        }
                     }
                 }
             }else if(selectedUnits.Count > 1)
