@@ -6,12 +6,13 @@ using UnityEngine;
 
 public class GenerationMap : MonoBehaviour
 {
-    public GameObject Tree, Rock;
+    public GameObject Tree, Rock, Town_Center;
+    public Renderer CylinderRenderer;
     public GameObject plane;
     private GameObject[] models;
     public float density = 0.005f; // Плотность объектов (например, 0.01 = 1 объект на 100 единиц площади)
     private int objectCount; // Количество объектов, рассчитывается автоматически
-    private Vector2 reservedAreaSize = new Vector2(20, 20); // Размер зарезервированной области
+    private Vector2 reservedAreaSize = new Vector2(40, 40); // Размер зарезервированной области
     public float perlinScale = 10f; // Масштаб шума Перлина
     public float perlinThreshold = 0.5f; // Порог значения шума для размещения объекта
     public float minDistance = 5f; // Минимальное расстояние между объектами
@@ -24,7 +25,31 @@ public class GenerationMap : MonoBehaviour
         // Получаем компонент NavMeshSurface
         navMeshSurface = GetComponent<NavMeshSurface>();
         models = new GameObject[] { Tree, Rock };
-
+        Color color = Color.white;
+        string colorPlayer = PlayerPrefs.GetString("ColorPlayer");
+        switch (colorPlayer)
+        {
+            case "Green":
+                color = Color.green;
+                break;
+            case "Blue":
+                color = Color.blue;
+                break;
+            case "Red":
+                color = Color.red;
+                break;
+            case "Orange":
+                Color customOrange = new Color(1f, 0.5f, 0f);
+                color = customOrange;
+                break;
+            case "Purple":
+                color = Color.magenta;
+                break;
+            case "Yellow":
+                color = Color.yellow;
+                break;
+        }
+        CylinderRenderer.material.color = color;
         // Получаем размеры Plane
         Vector3 planeSize = plane.GetComponent<Renderer>().bounds.size;
 
@@ -98,12 +123,6 @@ public class GenerationMap : MonoBehaviour
 
                 placedObjects++;
             }
-        }
-
-        // Строим NavMesh
-        if (navMeshSurface != null)
-        {
-            navMeshSurface.BuildNavMesh();
         }
     }
 }

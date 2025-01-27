@@ -22,9 +22,7 @@ public class AddVrags : MonoBehaviour
 
     void Start()
     {
-       
         vrags = new bool[] { Vrag1.gameObject.activeSelf, Vrag2.gameObject.activeSelf, Vrag3.gameObject.activeSelf, Vrag4.gameObject.activeSelf, Vrag5.gameObject.activeSelf, Vrag6.gameObject.activeSelf, Player.gameObject.activeSelf };
-
         enemyCountDropdown.onValueChanged.AddListener(OnEnemyCountChanged);
     }
     public void OnEnemyCountChanged(int selectedValue)
@@ -105,7 +103,7 @@ public class AddVrags : MonoBehaviour
                         //Debug.Log(colorList.Count);
                         if (colorList.Count == 0)
                         {
-                            Debug.Log("colorList.Count=0");
+                            //Debug.Log("colorList.Count=0");
                         }
                         else
                         {

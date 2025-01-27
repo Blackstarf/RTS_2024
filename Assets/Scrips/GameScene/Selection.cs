@@ -12,17 +12,6 @@ public class NewBehaviourScript : MonoBehaviour
     private Vector2 endMousePos; // Конечная позиция мыши
     private bool isSelecting = false; // Флаг для отслеживания состояния выделения
     private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     void UpdateSelectionBox()
     {
         float width = endMousePos.x - startMousePos.x;

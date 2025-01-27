@@ -57,26 +57,41 @@ public class BreakRockTree : MonoBehaviour
             yield return null; // Ждём следующий кадр
         }
 
+        // Проверяем, существует ли рабочий и целевой объект
+        if (worker == null || targetObject == null)
+        {
+            yield break; // Выходим из корутины, если один из объектов уничтожен
+        }
+
         // Когда рабочий достиг цели
         agent.isStopped = true; // Останавливаем движение рабочего
 
         // Замораживаем рабочего на 2 секунды
         yield return new WaitForSeconds(2f);
-        if (targetObject.name == "Forest" || targetObject.name == "Forest(Clone)")
+
+        // Проверяем целевой объект перед использованием его имени
+        if (targetObject != null)
         {
-            NumberWood.text = Convert.ToString(int.Parse(NumberWood.text) + 1);
-            NumberWoodUnit.text= Convert.ToString(int.Parse(NumberWoodUnit.text) + 1);
+            if (targetObject.name == "Forest" || targetObject.name == "Forest(Clone)")
+            {
+                NumberWood.text = Convert.ToString(int.Parse(NumberWood.text) + 1);
+                NumberWoodUnit.text = Convert.ToString(int.Parse(NumberWoodUnit.text) + 1);
+            }
+            else if (targetObject.name == "Rocks" || targetObject.name == "Rocks(Clone)")
+            {
+                NumberRock.text = Convert.ToString(int.Parse(NumberRock.text) + 1);
+                NumberRockUnit.text = Convert.ToString(int.Parse(NumberRockUnit.text) + 1);
+            }
+
+            // Уничтожаем объект
+            Destroy(targetObject);
         }
-        if (targetObject.name == "Rocks" || targetObject.name == "Rocks(Clone)")
-        {
-            NumberRock.text = Convert.ToString(int.Parse(NumberRock.text) + 1);
-            NumberRockUnit.text = Convert.ToString(int.Parse(NumberRockUnit.text) + 1);
-        }
-        // Уничтожаем объект
-        Destroy(targetObject);
 
         // Разрешаем рабочему двигаться снова
-        agent.isStopped = false;
+        if (agent != null)
+        {
+            agent.isStopped = false;
+        }
     }
 
     IEnumerator FreezeUnitForSeconds(GameObject unit, float seconds)
@@ -99,31 +114,9 @@ public class BreakRockTree : MonoBehaviour
     }
     void SelectObject(GameObject obj)
     {
-        // Снимаем выделение с предыдущего объекта
-        if (selectedObject != null)
-        {
-            DeselectObject(selectedObject);
-        }
-
         // Выделяем новый объект
         selectedObject = obj;
-        Renderer renderer = selectedObject.GetComponent<Renderer>();
-
-        if (renderer != null)
-        {
-            renderer.material.color = Color.red; // Меняем цвет объекта на красный (выделение)
-        }
 
         Debug.Log("Selected: " + obj.name);
-    }
-
-    void DeselectObject(GameObject obj)
-    {
-        Renderer renderer = obj.GetComponent<Renderer>();
-
-        if (renderer != null)
-        {
-            renderer.material.color = Color.white; // Сбрасываем цвет на стандартный
-        }
     }
 }
