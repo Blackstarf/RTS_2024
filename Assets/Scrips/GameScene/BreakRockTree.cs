@@ -132,9 +132,18 @@ public class BreakRockTree : MonoBehaviour
         }
 
         // Останавливаем движение рабочего
+        agent.isStopped = true;
+
+        // Отключаем объект `selectionMine1` только после прибытия
+        if (selectionMine1 != null)
+        {
+            selectionMine1.gameObject.SetActive(false);
+        }
+
+        // Возвращаем возможность двигаться рабочему
         agent.isStopped = false;
-        selectionMine1.gameObject.SetActive(false);
     }
+
     IEnumerator FreezeUnitForSeconds(GameObject unit, float seconds)
     {
         // Отключаем способность юнита двигаться

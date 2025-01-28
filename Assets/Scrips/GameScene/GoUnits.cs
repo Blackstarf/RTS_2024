@@ -10,10 +10,10 @@ public class GoUnits : MonoBehaviour
 {
     public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
     public Camera mainCamera;
-    public Sprite Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker, Town_Center;
+    public Sprite Healer, Orc, Archer, Heavy, Light_infantry, Catapult, SiegeTower, Converter, Worker, Town_Center;
     public Image UnitOrBuilds;
     public TMP_Text NameUnit;
-    public GameObject Panel,PanellotUnits,PanelBuidings;
+    public GameObject Panel,PanellotUnits,PanelBuidings,PanelCommand;
     public Image[] Images, ImagesHp;
     private Sprite[] UnitsObject;
     public static List<GameObject> selectedUnits = new List<GameObject>(); // Список выделенных юнитов
@@ -89,16 +89,22 @@ public class GoUnits : MonoBehaviour
                         
                     }
                 }
-            }
-            foreach (GameObject gameObject in selectedUnits) 
+            } 
+        }
+        Transform transform = PanelCommand.transform.Find("PanelAtatka");
+        foreach (GameObject gameObject in selectedUnits)
+        {
+            if (gameObject.name != "Worker")
             {
-                if (gameObject.name != "Worker")
-                {
-                    PanelBuidings.SetActive(false);
-                }
+                PanelBuidings.SetActive(false);
             }
-
-            
+            if(gameObject.name == "Knight"|| gameObject.name == "Archer" || gameObject.name == "Heavy" || gameObject.name == "Catapult"|| gameObject.name == "SiegeTower")
+            {
+                transform.gameObject.SetActive(true);
+            }else
+            {
+                transform.gameObject.SetActive(false);
+            }
         }
         HandleSelection();
         HandleMovement();

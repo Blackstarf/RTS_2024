@@ -10,21 +10,51 @@ public class GenerationMap : MonoBehaviour
     public Renderer CylinderRenderer;
     public GameObject plane;
     private GameObject[] models;
-    public float density = 0.005f; // Плотность объектов (например, 0.01 = 1 объект на 100 единиц площади)
+    private float density = 0.005f; // Плотность объектов (например, 0.01 = 1 объект на 100 единиц площади)
     private int objectCount; // Количество объектов, рассчитывается автоматически
     private Vector2 reservedAreaSize = new Vector2(40, 40); // Размер зарезервированной области
-    public float perlinScale = 10f; // Масштаб шума Перлина
-    public float perlinThreshold = 0.5f; // Порог значения шума для размещения объекта
-    public float minDistance = 5f; // Минимальное расстояние между объектами
+    private float perlinScale = 10f; // Масштаб шума Перлина
+    private float perlinThreshold = 0.5f; // Порог значения шума для размещения объекта
+    private float minDistance = 5f; // Минимальное расстояние между объектами
     public NavMeshSurface navMeshSurface;
 
     private List<Vector3> placedObjectPositions = new List<Vector3>(); // Список позиций размещённых объектов
+
+    // Новые поля для размещения Town_Center
+    private int townCenterCount; // Количество ратуш
+    public float townCenterRadiusMultiplier = 0.4f;
 
     void Start()
     {
         // Получаем компонент NavMeshSurface
         navMeshSurface = GetComponent<NavMeshSurface>();
         models = new GameObject[] { Tree, Rock };
+        townCenterCount = PlayerPrefs.GetInt("CountVrags");
+        // Получаем компонент NavMeshSurface
+        navMeshSurface = GetComponent<NavMeshSurface>();
+        models = new GameObject[] { Tree, Rock };
+
+        // Получаем размеры Plane
+        Vector3 planeSize = plane.GetComponent<Renderer>().bounds.size;
+
+        // Рассчитываем радиус для размещения Town_Center
+        float radius = Mathf.Min(planeSize.x, planeSize.z) * townCenterRadiusMultiplier;
+
+        // Размещаем ратуши по окружности
+        for (int i = 0; i < townCenterCount; i++)
+        {
+            float angle = i * (360f / townCenterCount); // Расстояние между объектами на окружности
+            float angleRad = angle * Mathf.Deg2Rad; // Преобразуем угол в радианы
+
+            float x = Mathf.Cos(angleRad) * radius;
+            float z = Mathf.Sin(angleRad) * radius;
+
+            Vector3 position = new Vector3(x, 1.7f, z); // Позиция ратуши
+
+            // Instantiate Town_Center на рассчитанной позиции
+            Instantiate(Town_Center, position, Quaternion.identity);
+        }
+
         Color color = Color.white;
         string colorPlayer = PlayerPrefs.GetString("ColorPlayer");
         switch (colorPlayer)
@@ -51,7 +81,7 @@ public class GenerationMap : MonoBehaviour
         }
         CylinderRenderer.material.color = color;
         // Получаем размеры Plane
-        Vector3 planeSize = plane.GetComponent<Renderer>().bounds.size;
+        planeSize = plane.GetComponent<Renderer>().bounds.size;
 
         // Рассчитываем количество объектов на основе плотности
         float planeArea = planeSize.x * planeSize.z; // Площадь плоскости

@@ -2867,6 +2867,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3928290521851066025}
+  - component: {fileID: 1123249700108181947}
   m_Layer: 10
   m_Name: town_center_model
   m_TagString: Unit
@@ -2951,8 +2952,24 @@ Transform:
   - {fileID: 69015733234984516}
   - {fileID: 3159455065938725233}
   m_Father: {fileID: 0}
-  m_RootOrder: -2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!208 &1123249700108181947
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3931184038110116919}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 21.5, y: 20, z: 15}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 2, y: 0, z: 2}
+  m_TimeToStationary: 0.5
 --- !u!1 &4046317012067538984
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,6 +16,21 @@ public class BuildingCosts : MonoBehaviour
     private GameObject currentFarm; // Текущий перемещаемый объект
     private bool isPlacing = false; // Флаг для отслеживания режима постройки
 
+    private Dictionary<Button, BuildingData> buildings;
+
+    void Start()
+    {
+        buildings = new Dictionary<Button, BuildingData>
+        {
+            { Farm, new BuildingData(Farm3d, 5, 5) },
+            { Granary, new BuildingData(Granary3d, 7, 7) },
+            { Barrack1Lv, new BuildingData(Barrack1Lv3d, 7, 15) },
+            { SiegeFactory, new BuildingData(SiegeFactory3d, 15, 25) },
+            { House, new BuildingData(House3d, 5, 10) },
+            { Temple, new BuildingData(Temple3d, 7, 15) }
+        };
+    }
+
     void Update()
     {
         // Обновляем ресурсы
@@ -24,35 +39,17 @@ public class BuildingCosts : MonoBehaviour
         RockCount = int.Parse(RockMain.text);
         FoodCount = int.Parse(FoodMain.text);
 
-        // Делаем доступной кнопку фермы
-        if (WoodCount >= 5 && RockCount >= 5)
+        // Проверяем доступность кнопок
+        foreach (var entry in buildings)
         {
-            Transform selectionSprite = Farm.transform.Find("PanelNo");
-            selectionSprite.gameObject.SetActive(false);
-        }
-        else
-        {
-            Transform selectionSprite = Farm.transform.Find("PanelNo");
-            selectionSprite.gameObject.SetActive(true);
+            UpdateButtonAvailability(entry.Key, entry.Value);
         }
 
-        // Делаем доступной кнопку амбара
-        if (WoodCount >= 7 && RockCount >= 7)
-        {
-            Transform selectionSprite = Granary.transform.Find("PanelNo");
-            selectionSprite.gameObject.SetActive(false);
-        }
-        else
-        {
-            Transform selectionSprite = Granary.transform.Find("PanelNo");
-            selectionSprite.gameObject.SetActive(true);
-        }
-
-        // Логика размещения фермы
+        // Логика размещения
         if (isPlacing && currentFarm != null)
         {
             MoveBuildingWithCursor();
-            
+
             if (Input.GetMouseButtonDown(0)) // Если нажали ЛКМ
             {
                 if (CanPlaceHere(currentFarm.transform.position))
@@ -72,46 +69,38 @@ public class BuildingCosts : MonoBehaviour
         }
     }
 
-    public void BuildFarm()
+    private void UpdateButtonAvailability(Button button, BuildingData buildingData)
     {
-        if (WoodCount < 5 || RockCount < 5)
+        bool isAvailable = WoodCount >= buildingData.WoodCost && RockCount >= buildingData.RockCost;
+        Transform selectionSprite = button.transform.Find("PanelNo");
+        selectionSprite.gameObject.SetActive(!isAvailable);
+    }
+
+    public void Build(Button button)
+    {
+        if (!buildings.ContainsKey(button)) return;
+
+        BuildingData buildingData = buildings[button];
+
+        if (WoodCount < buildingData.WoodCost || RockCount < buildingData.RockCost)
         {
-            Debug.Log("Недостаточно ресурсов для постройки фермы БОЛЬШЕ работай или в Купер!!!");
+            Debug.Log($"Недостаточно ресурсов для постройки {buildingData.Prefab.name}! БОЛЬШЕ работай или в Купер!!!");
             return;
         }
 
         if (isPlacing) return; // Если уже размещаем, ничего не делаем
 
         // Вычитаем ресурсы
-        WoodCount -= 5;
-        RockCount -= 5;
+        WoodCount -= buildingData.WoodCost;
+        RockCount -= buildingData.RockCost;
         WoodMain.text = WoodCount.ToString();
         RockMain.text = RockCount.ToString();
 
-        // Начинаем размещение фермы
-        currentFarm = Instantiate(Farm3d);
+        // Начинаем размещение
+        currentFarm = Instantiate(buildingData.Prefab);
         isPlacing = true;
     }
-    public void BuildGranary()
-    {
-        if (WoodCount < 7 || RockCount < 7)
-        {
-            Debug.Log("Недостаточно ресурсов для постройки мельницы БОЛЬШЕ работай или в Купер!!!");
-            return;
-        }
 
-        if (isPlacing) return; // Если уже размещаем, ничего не делаем
-
-        // Вычитаем ресурсы
-        WoodCount -= 7;
-        RockCount -= 7;
-        WoodMain.text = WoodCount.ToString();
-        RockMain.text = RockCount.ToString();
-
-        // Начинаем размещение фермы
-        currentFarm = Instantiate(Granary3d);
-        isPlacing = true;
-    }
     void MoveBuildingWithCursor()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -157,7 +146,6 @@ public class BuildingCosts : MonoBehaviour
         return true; // Место свободно
     }
 
-
     void PlaceFarm()
     {
         Debug.Log("Объект построен!");
@@ -185,12 +173,25 @@ public class BuildingCosts : MonoBehaviour
         currentFarm = null;
     }
 
-
     void CancelPlacement()
     {
         Debug.Log("Отмена постройки!");
         Destroy(currentFarm);
         currentFarm = null;
         isPlacing = false;
+    }
+
+    private class BuildingData
+    {
+        public GameObject Prefab { get; }
+        public int WoodCost { get; }
+        public int RockCost { get; }
+
+        public BuildingData(GameObject prefab, int woodCost, int rockCost)
+        {
+            Prefab = prefab;
+            WoodCost = woodCost;
+            RockCost = rockCost;
+        }
     }
 }
