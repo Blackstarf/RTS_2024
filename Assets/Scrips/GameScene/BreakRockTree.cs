@@ -9,8 +9,9 @@ public class BreakRockTree : MonoBehaviour
 {
     public TMP_Text NumberWood, NumberWoodUnit, NumberRock, NumberRockUnit;
     public GameObject ZonePlayer;
+    public GameObject TownHall;
     private GameObject selectedObject; // Ссылка на выделенный объект
-
+    private Transform selectionMine1 = null;
     void Update()
     {
         // Проверяем, нажата ли правая кнопка мыши
@@ -42,7 +43,7 @@ public class BreakRockTree : MonoBehaviour
 
                             // Ожидаем, пока рабочий дойдёт до объекта
                             StartCoroutine(WaitUntilWorkerArrives(worker, clickedObject, agent));
-                            
+                           // selectionMine1.gameObject.SetActive(false);
                         }
                     }
                 }
@@ -66,10 +67,11 @@ public class BreakRockTree : MonoBehaviour
 
         // Когда рабочий достиг цели
         agent.isStopped = true; // Останавливаем движение рабочего
-
+        
         // Замораживаем рабочего на 2 секунды
         yield return new WaitForSeconds(2f);
-
+        Transform selectionVillager = worker.transform.Find("Villager");
+       
         // Проверяем целевой объект перед использованием его имени
         if (targetObject != null)
         {
@@ -77,12 +79,16 @@ public class BreakRockTree : MonoBehaviour
             {
                 NumberWood.text = Convert.ToString(int.Parse(NumberWood.text) + 1);
                 NumberWoodUnit.text = Convert.ToString(int.Parse(NumberWoodUnit.text) + 1);
+                selectionMine1 = selectionVillager.transform.Find("wood");
             }
             else if (targetObject.name == "Rocks" || targetObject.name == "Rocks(Clone)")
             {
                 NumberRock.text = Convert.ToString(int.Parse(NumberRock.text) + 1);
                 NumberRockUnit.text = Convert.ToString(int.Parse(NumberRockUnit.text) + 1);
-            }else if(targetObject.name == "farm_model(Clone)")
+                selectionMine1 = selectionVillager.transform.Find("rock");
+
+            }
+            else if(targetObject.name == "farm_model(Clone)")
             {
                 Transform selectionSprite = ZonePlayer.transform.Find("granary_model(Clone)");
                 if (selectionSprite != null)
@@ -94,9 +100,9 @@ public class BreakRockTree : MonoBehaviour
                     Debug.Log("Слыш ты сначал построй мельницу");
                 }
             }
-
+            selectionMine1.gameObject.SetActive(true);
             // Уничтожаем объект
-            if(targetObject.name != "farm_model(Clone)")
+            if (targetObject.name != "farm_model(Clone)")
             {
                 Destroy(targetObject);
             }
@@ -107,8 +113,28 @@ public class BreakRockTree : MonoBehaviour
         {
             agent.isStopped = false;
         }
+        // Отправляем рабочего к ратуше
+        if (TownHall != null)
+        {
+            StartCoroutine(MoveToTownHall(worker, agent));
+        }
+        
     }
+    IEnumerator MoveToTownHall(GameObject worker, NavMeshAgent agent)
+    {
+        // Устанавливаем цель для рабочего
+        agent.SetDestination(TownHall.transform.position);
 
+        // Ожидаем, пока рабочий не приблизится к ратуше на заданное расстояние
+        while (Vector3.Distance(worker.transform.position, TownHall.transform.position) > 5f)
+        {
+            yield return null; // Ждём следующий кадр
+        }
+
+        // Останавливаем движение рабочего
+        agent.isStopped = false;
+        selectionMine1.gameObject.SetActive(false);
+    }
     IEnumerator FreezeUnitForSeconds(GameObject unit, float seconds)
     {
         // Отключаем способность юнита двигаться

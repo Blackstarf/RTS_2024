@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,12 +30,22 @@ public class BuildingCosts : MonoBehaviour
             Transform selectionSprite = Farm.transform.Find("PanelNo");
             selectionSprite.gameObject.SetActive(false);
         }
+        else
+        {
+            Transform selectionSprite = Farm.transform.Find("PanelNo");
+            selectionSprite.gameObject.SetActive(true);
+        }
 
         // Делаем доступной кнопку амбара
         if (WoodCount >= 7 && RockCount >= 7)
         {
             Transform selectionSprite = Granary.transform.Find("PanelNo");
             selectionSprite.gameObject.SetActive(false);
+        }
+        else
+        {
+            Transform selectionSprite = Granary.transform.Find("PanelNo");
+            selectionSprite.gameObject.SetActive(true);
         }
 
         // Логика размещения фермы
@@ -146,6 +157,7 @@ public class BuildingCosts : MonoBehaviour
         return true; // Место свободно
     }
 
+
     void PlaceFarm()
     {
         Debug.Log("Объект построен!");
@@ -160,6 +172,13 @@ public class BuildingCosts : MonoBehaviour
 
         // Добавляем объект в контейнер
         currentFarm.transform.SetParent(BuildingContainer.transform);
+
+        // Обновляем NavMeshSurface
+        NavMeshSurface[] surfaces = FindObjectsOfType<NavMeshSurface>();
+        foreach (var surface in surfaces)
+        {
+            surface.BuildNavMesh();
+        }
 
         // Завершаем размещение
         isPlacing = false;

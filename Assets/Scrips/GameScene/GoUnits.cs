@@ -13,9 +13,8 @@ public class GoUnits : MonoBehaviour
     public Sprite Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker, Town_Center;
     public Image UnitOrBuilds;
     public TMP_Text NameUnit;
-    public GameObject Panel,PanellotUnits;
-    public Image[] Images;
-    public Image[] ImagesHp;
+    public GameObject Panel,PanellotUnits,PanelBuidings;
+    public Image[] Images, ImagesHp;
     private Sprite[] UnitsObject;
     public static List<GameObject> selectedUnits = new List<GameObject>(); // Список выделенных юнитов
     private Vector2 startMousePos; // Начальная позиция мыши
@@ -57,7 +56,7 @@ public class GoUnits : MonoBehaviour
                     if (selectedUnits[0].name == UnitsObject[j].name)
                     {
                         UnitOrBuilds.sprite = UnitsObject[j];
-                        if(UnitsObject[j].name== "Town_Center")
+                        if(UnitsObject[j].name == "Town_Center")
                         {
                             NameUnit.text = "Ратуша";
                         }
@@ -67,7 +66,12 @@ public class GoUnits : MonoBehaviour
                         }
                     }
                 }
-            }else if(selectedUnits.Count > 1)
+                if (gameObject.name != "Worker")
+                {
+                    PanelBuidings.SetActive(true);
+                }
+            }
+            else if(selectedUnits.Count > 1)
             {
                 Panel.SetActive(false);
                 PanellotUnits.SetActive(true);
@@ -77,7 +81,6 @@ public class GoUnits : MonoBehaviour
                     Images[i].gameObject.SetActive(true);
                     for (int x = 0; x < UnitsObject.Length; x++)
                     {
-                        
                         if (selectedUnits[i].name == UnitsObject[x].name)
                         {
                             Images[i].sprite = UnitsObject[x];
@@ -87,6 +90,15 @@ public class GoUnits : MonoBehaviour
                     }
                 }
             }
+            foreach (GameObject gameObject in selectedUnits) 
+            {
+                if (gameObject.name != "Worker")
+                {
+                    PanelBuidings.SetActive(false);
+                }
+            }
+
+            
         }
         HandleSelection();
         HandleMovement();

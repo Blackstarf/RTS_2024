@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8155590289634007560}
-  - component: {fileID: -6901669056373829869}
+  - component: {fileID: 6271187541499035357}
   m_Layer: 0
   m_Name: tree_resource_model
   m_TagString: Untagged
@@ -31,9 +31,9 @@ Transform:
   m_Children:
   - {fileID: 3630299915010664789}
   m_Father: {fileID: 0}
-  m_RootOrder: -2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!208 &-6901669056373829869
+--- !u!208 &6271187541499035357
 NavMeshObstacle:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,12 +42,12 @@ NavMeshObstacle:
   m_GameObject: {fileID: 1382659402361695440}
   m_Enabled: 1
   serializedVersion: 3
-  m_Shape: 1
-  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_Shape: 0
+  m_Extents: {x: 0.7, y: 2, z: 0.7}
   m_MoveThreshold: 0.1
   m_Carve: 0
   m_CarveOnlyStationary: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
   m_TimeToStationary: 0.5
 --- !u!1 &3635314921877729025
 GameObject:
