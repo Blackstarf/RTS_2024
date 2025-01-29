@@ -7,6 +7,7 @@ public class NewBehaviourScript : MonoBehaviour
     public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
     public Camera mainCamera;
 
+
     private List<GameObject> selectedBuldings = new List<GameObject>(); // Список выделенных юнитов
     private Vector2 startMousePos; // Начальная позиция мыши
     private Vector2 endMousePos; // Конечная позиция мыши

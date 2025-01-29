@@ -13,7 +13,7 @@ public class GoUnits : MonoBehaviour
     public Sprite Healer, Orc, Archer, Heavy, Light_infantry, Catapult, SiegeTower, Converter, Worker, Town_Center;
     public Image UnitOrBuilds;
     public TMP_Text NameUnit;
-    public GameObject Panel,PanellotUnits,PanelBuidings,PanelCommand;
+    public GameObject Panel, PanellotUnits, PanelBuidings, PanelCommand;
     public Image[] Images, ImagesHp;
     private Sprite[] UnitsObject;
     public static List<GameObject> selectedUnits = new List<GameObject>(); // Список выделенных юнитов
@@ -21,11 +21,13 @@ public class GoUnits : MonoBehaviour
     private Vector2 endMousePos; // Конечная позиция мыши
     private bool isSelecting = false; // Флаг для отслеживания состояния выделения
     private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
+
     private void Start()
     {
-        UnitsObject= new Sprite[] { Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker, Town_Center };
+        UnitsObject = new Sprite[] { Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker, Town_Center };
         selectionBoxUI.gameObject.SetActive(false);
     }
+
     void Update()
     {
         if (!isSelecting)
@@ -40,11 +42,13 @@ public class GoUnits : MonoBehaviour
                 isInNoSelectionZone = false;
             }
         }
+
         //Меняем картинку
         foreach (Image obj in Images)
         {
             obj.gameObject.SetActive(false);
         }
+
         for (int i = 0; i < selectedUnits.Count; i++)
         {
             if (selectedUnits.Count == 1)
@@ -56,7 +60,7 @@ public class GoUnits : MonoBehaviour
                     if (selectedUnits[0].name == UnitsObject[j].name)
                     {
                         UnitOrBuilds.sprite = UnitsObject[j];
-                        if(UnitsObject[j].name == "Town_Center")
+                        if (UnitsObject[j].name == "Town_Center")
                         {
                             NameUnit.text = "Ратуша";
                         }
@@ -71,12 +75,12 @@ public class GoUnits : MonoBehaviour
                     PanelBuidings.SetActive(true);
                 }
             }
-            else if(selectedUnits.Count > 1)
+            else if (selectedUnits.Count > 1)
             {
                 Panel.SetActive(false);
                 PanellotUnits.SetActive(true);
-                
-                for (int j = 0;j < selectedUnits.Count; j++)
+
+                for (int j = 0; j < selectedUnits.Count; j++)
                 {
                     Images[i].gameObject.SetActive(true);
                     for (int x = 0; x < UnitsObject.Length; x++)
@@ -86,11 +90,11 @@ public class GoUnits : MonoBehaviour
                             Images[i].sprite = UnitsObject[x];
                             break;
                         }
-                        
                     }
                 }
-            } 
+            }
         }
+
         Transform transform = PanelCommand.transform.Find("PanelAtatka");
         foreach (GameObject gameObject in selectedUnits)
         {
@@ -98,14 +102,16 @@ public class GoUnits : MonoBehaviour
             {
                 PanelBuidings.SetActive(false);
             }
-            if(gameObject.name == "Knight"|| gameObject.name == "Archer" || gameObject.name == "Heavy" || gameObject.name == "Catapult"|| gameObject.name == "SiegeTower")
+            if (gameObject.name == "Knight" || gameObject.name == "Archer" || gameObject.name == "Heavy" || gameObject.name == "Catapult" || gameObject.name == "SiegeTower")
             {
                 transform.gameObject.SetActive(true);
-            }else
+            }
+            else
             {
                 transform.gameObject.SetActive(false);
             }
         }
+
         HandleSelection();
         HandleMovement();
     }
@@ -170,10 +176,7 @@ public class GoUnits : MonoBehaviour
                 SelectUnit(unit); // Добавляем объект в список выделенных
             }
         }
-
-        
     }
-
 
     void HandleMovement()
     {
@@ -186,15 +189,20 @@ public class GoUnits : MonoBehaviour
                 foreach (GameObject unit in selectedUnits)
                 {
                     NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-                    if (agent != null)
+                    if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
                     {
-                        Debug.Log(unit);
+                        Debug.Log("Moving unit: " + unit.name);
                         agent.SetDestination(hit.point);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("NavMeshAgent is not active or not on NavMesh for unit: " + unit.name);
                     }
                 }
             }
         }
     }
+
     void SelectUnit(GameObject unit)
     {
         selectedUnits.Add(unit);
@@ -217,6 +225,7 @@ public class GoUnits : MonoBehaviour
         }
         selectedUnits.Clear();
     }
+
     /// <summary>
     /// Проверяет, находится ли указатель над зоной, где выделение запрещено.
     /// </summary>
@@ -236,6 +245,7 @@ public class GoUnits : MonoBehaviour
         }
         return false;
     }
+
     public List<string> CheckNames(List<GameObject> objects)
     {
         List<string> resultNames = new List<string>();

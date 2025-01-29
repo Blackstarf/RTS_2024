@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.AI.Navigation;
 using UnityEngine;
 
@@ -9,20 +10,22 @@ public class GenerationMap : MonoBehaviour
     public GameObject Tree, Rock, Town_Center;
     public Renderer CylinderRenderer;
     public GameObject plane;
+    public GameObject ZonesVrags;
     private GameObject[] models;
     private float density = 0.005f; // Плотность объектов (например, 0.01 = 1 объект на 100 единиц площади)
     private int objectCount; // Количество объектов, рассчитывается автоматически
-    private Vector2 reservedAreaSize = new Vector2(40, 40); // Размер зарезервированной области
+    private Vector2 reservedAreaSize = new Vector2(25, 25); // Размер зарезервированной области
     private float perlinScale = 10f; // Масштаб шума Перлина
     private float perlinThreshold = 0.5f; // Порог значения шума для размещения объекта
     private float minDistance = 5f; // Минимальное расстояние между объектами
     public NavMeshSurface navMeshSurface;
 
     private List<Vector3> placedObjectPositions = new List<Vector3>(); // Список позиций размещённых объектов
+    private List<Vector3> townCenterPositions = new List<Vector3>(); // Список позиций Town_Center
 
     // Новые поля для размещения Town_Center
     private int townCenterCount; // Количество ратуш
-    public float townCenterRadiusMultiplier = 0.4f;
+    private float townCenterRadiusMultiplier = 0.4f;
 
     void Start()
     {
@@ -30,9 +33,6 @@ public class GenerationMap : MonoBehaviour
         navMeshSurface = GetComponent<NavMeshSurface>();
         models = new GameObject[] { Tree, Rock };
         townCenterCount = PlayerPrefs.GetInt("CountVrags");
-        // Получаем компонент NavMeshSurface
-        navMeshSurface = GetComponent<NavMeshSurface>();
-        models = new GameObject[] { Tree, Rock };
 
         // Получаем размеры Plane
         Vector3 planeSize = plane.GetComponent<Renderer>().bounds.size;
@@ -52,7 +52,22 @@ public class GenerationMap : MonoBehaviour
             Vector3 position = new Vector3(x, 1.7f, z); // Позиция ратуши
 
             // Instantiate Town_Center на рассчитанной позиции
-            Instantiate(Town_Center, position, Quaternion.identity);
+            GameObject townCenterInstance = Instantiate(Town_Center, position, Quaternion.identity);
+            townCenterInstance.transform.SetParent(ZonesVrags.transform);
+
+            // Назначаем имя Town_Center
+            townCenterInstance.name = "Vrag_" + (i + 1);
+
+            // Находим TMP_Text компонент с именем Player
+            TMP_Text playerText = townCenterInstance.GetComponentInChildren<TMP_Text>();
+            if (playerText != null)
+            {
+                // Обновляем текст
+                playerText.text = townCenterInstance.name;
+            }
+
+            // Добавляем позицию Town_Center в список
+            townCenterPositions.Add(position);
         }
 
         Color color = Color.white;
@@ -80,6 +95,7 @@ public class GenerationMap : MonoBehaviour
                 break;
         }
         CylinderRenderer.material.color = color;
+
         // Получаем размеры Plane
         planeSize = plane.GetComponent<Renderer>().bounds.size;
 
@@ -87,7 +103,7 @@ public class GenerationMap : MonoBehaviour
         float planeArea = planeSize.x * planeSize.z; // Площадь плоскости
         objectCount = Mathf.RoundToInt(planeArea * density); // Количество объектов пропорционально плотности
 
-        // Вычисляем границы резервируемой области
+        // Вычисляем границы резервируемой области в центре
         Vector2 reservedMin = new Vector2(-reservedAreaSize.x / 2, -reservedAreaSize.y / 2);
         Vector2 reservedMax = new Vector2(reservedAreaSize.x / 2, reservedAreaSize.y / 2);
 
@@ -99,9 +115,27 @@ public class GenerationMap : MonoBehaviour
             float randomX = UnityEngine.Random.Range(-planeSize.x / 2, planeSize.x / 2);
             float randomZ = UnityEngine.Random.Range(-planeSize.z / 2, planeSize.z / 2);
 
-            // Проверяем, чтобы объект не попадал в центральную область
+            Vector3 randomPosition = new Vector3(randomX, 1, randomZ);
+
+            // Проверяем, чтобы объект не попадал в зарезервированные области вокруг Town_Center
+            bool isInReservedArea = false;
+            foreach (Vector3 townCenterPosition in townCenterPositions)
+            {
+                if (Vector3.Distance(randomPosition, townCenterPosition) < reservedAreaSize.x / 2)
+                {
+                    isInReservedArea = true;
+                    break;
+                }
+            }
+
+            // Проверяем, чтобы объект не попадал в центральную зарезервированную область
             if (randomX > reservedMin.x && randomX < reservedMax.x &&
                 randomZ > reservedMin.y && randomZ < reservedMax.y)
+            {
+                isInReservedArea = true;
+            }
+
+            if (isInReservedArea)
             {
                 continue; // Пропускаем, если в зарезервированной области
             }
@@ -114,8 +148,6 @@ public class GenerationMap : MonoBehaviour
             // Проверяем порог значения шума
             if (perlinValue >= perlinThreshold)
             {
-                Vector3 randomPosition = new Vector3(randomX, 1, randomZ);
-
                 // Проверяем, что новое место достаточно далеко от других объектов
                 bool isTooClose = false;
                 foreach (Vector3 placedPosition in placedObjectPositions)
