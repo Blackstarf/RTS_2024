@@ -1,0 +1,212 @@
+{
+  "units": [
+    {
+      "name": "Archer",
+      "movementSpeed": 5.0,
+      "health": 15,
+      "trainingCost": {
+        "food": 5,
+        "wood": 10
+      },
+      "detectionRange": 15,
+      "attack": {
+        "minRange": 3,
+        "maxRange": 10,
+        "attackDelay": 1.5,
+        "damage": 15
+      }
+    },
+    {
+      "name": "Catapult",
+      "movementSpeed": 3.0,
+      "health": 30,
+      "trainingCost": {
+        "wood": 15,
+        "crop": 15
+      },
+      "detectionRange": 20,
+      "attack": {
+        "minRange": 5,
+        "maxRange": 15,
+        "attackDelay": 3.0,
+        "damage": 40
+      }
+    },
+    {
+      "name": "Heavy",
+      "movementSpeed": 4.0,
+      "health": 50,
+      "trainingCost": {
+        "crop": 15,
+        "food": 10
+      },
+      "detectionRange": 10,
+      "attack": {
+        "minRange": 1,
+        "maxRange": 2,
+        "attackDelay": 1.0,
+        "damage": 30
+      }
+    },
+    {
+      "name": "Light_infantry",
+      "movementSpeed": 4.5,
+      "health": 25,
+      "trainingCost": {
+        "food": 5,
+        "crop": 15
+      },
+      "detectionRange": 12,
+      "attack": {
+        "minRange": 2,
+        "maxRange": 6,
+        "attackDelay": 1.2,
+        "damage": 20
+      }
+    },
+    {
+      "name": "Worker",
+      "movementSpeed": 3.0,
+      "health": 10,
+      "trainingCost": {
+        "wood": 10
+      },
+      "detectionRange": 5,
+      "builder": {
+        "resourceGatheringSpeed": 5.0,
+        "repairSpeed": 2.0,
+        "repairEfficiency": 10
+      }
+    },
+    {
+      "name": "Healer",
+      "movementSpeed": 4.0,
+      "health": 20,
+      "trainingCost": {
+        "food": 15
+      },
+      "detectionRange": 8,
+      "healing": {
+        "minRange": 1,
+        "maxRange": 5,
+        "healingDelay": 1.5,
+        "healingAmount": 15
+      }
+    },
+    {
+      "name": "Siege_Tower",
+      "movementSpeed": 2.0,
+      "health": 50,
+      "trainingCost": {
+        "wood": 50,
+        "crop": 20
+      },
+      "detectionRange": 10,
+      "attack": {
+        "minRange": 2,
+        "maxRange": 8,
+        "attackDelay": 2.0,
+        "damage": 5
+      },
+      "capacity": 10
+    }
+  ],
+  "buildings": [
+    {
+      "name": "Barrack",
+      "durability": 70,
+      "constructionCost": {
+        "wood": 20,
+        "rock": 30
+      },
+      "trainsUnits": [ "Archer", "Light_infantry", "Heavy" ]
+    },
+    {
+      "name": "House",
+      "durability": 50,
+      "constructionCost": {
+        "wood": 10,
+        "rock": 20
+      },
+      "trainsUnits": [ "Worker" ]
+    },
+    {
+      "name": "University",
+      "durability": 70,
+      "constructionCost": {
+        "wood": 20,
+        "crop": 20
+      },
+      "trainsUnits": [ "Catapult", "Siege_Tower" ]
+    },
+    {
+      "name": "Temple",
+      "durability": 100,
+      "constructionCost": {
+        "rock": 50,
+        "crop": 20
+      },
+      "trainsUnits": [ "Healer" ]
+    },
+    {
+      "name": "Granary",
+      "durability": 30,
+      "constructionCost": {
+        "wood": 7
+      },
+      "producesResource": "grain"
+    },
+    {
+      "name": "Farm",
+      "durability": 60,
+      "constructionCost": {
+        "wood": 10
+      },
+      "producesResource": "food"
+    },
+    {
+      "name": "Tower",
+      "durability": 150,
+      "constructionCost": {
+        "rock": 50,
+        "crop": 30
+      },
+      "detectionRadius": 20,
+      "buildZoneRadius": 15,
+      "archerCapacity": 5,
+      "attack": {
+        "minRange": 0,
+        "maxRange": 8,
+        "attackDelay": 2.0,
+        "damagePerArcher": 5
+      }
+    },
+    {
+      "name": "Storage",
+      "durability": 70,
+      "constructionCost": {
+        "wood": 10,
+        "rock": 30
+      },
+      "increasesMaxResources": true
+    },
+    {
+      "name": "Town_Center",
+      "durability": 500,
+      "constructionCost": {
+        "rock": 60,
+        "crop": 60
+      },
+      "buildZoneRadius": 30
+    },
+    {
+      "name": "Siege_Factory",
+      "durability": 60,
+      "constructionCost": {
+        "rock": 30,
+        "wood": 15
+      },
+      "producesResource": "crop"
+    }
+  ]
+}

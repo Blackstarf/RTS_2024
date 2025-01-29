@@ -1,8 +1,59 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
-//using UnityEngine.AI;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
 
+public class Attaka : MonoBehaviour
+{
+    public GameObject ZonePlayer, Vrags; // GameObject to which units will move
+    private bool hasAttacked = false; // Flag to track if the attack log has been printed
+
+    void Update()
+    {
+        // Check if there are 5 or more units under Vrags and attack ZonePlayer
+        CheckAndAttackZonePlayer();
+    }
+
+    void CheckAndAttackZonePlayer()
+    {
+        Transform vrag1Transform = Vrags.transform.Find("Vrag_1");
+        if (vrag1Transform != null)
+        {
+            List<GameObject> unitsUnderVrag1 = new List<GameObject>();
+            foreach (Transform child in vrag1Transform)
+            {
+                GameObject unit = child.gameObject;
+                if (unit.CompareTag("UnitVrag")&& unit.name!= "Worker")
+                {
+                    unitsUnderVrag1.Add(unit);
+                }
+            }
+
+            if (unitsUnderVrag1.Count >= 5)
+            {
+                if (!hasAttacked)
+                {
+                    Debug.Log("Vrag_1 is attacking ZonePlayer");
+                    hasAttacked = true; // Set the flag to true after printing the log
+                }
+
+                foreach (GameObject unit in unitsUnderVrag1)
+                {
+                    NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
+                    if (agent != null && agent.isActiveAndEnabled)
+                    {
+                        agent.SetDestination(ZonePlayer.transform.position);
+                        // Debug.Log("Unit: " + unit.name + " is attacking ZonePlayer");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Unit: " + unit.name + " is not active or not on NavMesh");
+                    }
+                }
+            }
+        }
+    }
+}
 //public class Attaka : MonoBehaviour
 //{
 //    public GameObject ZonePlayer, Vrags; // GameObject to which units will move
@@ -161,60 +212,3 @@
 //        }
 //    }
 //}
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.AI;
-
-public class Attaka : MonoBehaviour
-{
-    public GameObject ZonePlayer, Vrags; // GameObject to which units will move
-    private bool hasAttacked = false; // Flag to track if the attack log has been printed
-
-    void Update()
-    {
-        // Check if there are 5 or more units under Vrags and attack ZonePlayer
-        CheckAndAttackZonePlayer();
-    }
-
-    void CheckAndAttackZonePlayer()
-    {
-        Transform vrag1Transform = Vrags.transform.Find("Vrag_1");
-        if (vrag1Transform != null)
-        {
-            List<GameObject> unitsUnderVrag1 = new List<GameObject>();
-            foreach (Transform child in vrag1Transform)
-            {
-                GameObject unit = child.gameObject;
-                if (unit.CompareTag("UnitVrag"))
-                {
-                    unitsUnderVrag1.Add(unit);
-                }
-            }
-
-            if (unitsUnderVrag1.Count >= 5)
-            {
-                if (!hasAttacked)
-                {
-                    Debug.Log("Vrag_1 is attacking ZonePlayer");
-                    hasAttacked = true; // Set the flag to true after printing the log
-                }
-
-                foreach (GameObject unit in unitsUnderVrag1)
-                {
-                    NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-                    if (agent != null && agent.isActiveAndEnabled)
-                    {
-                        agent.SetDestination(ZonePlayer.transform.position);
-                       // Debug.Log("Unit: " + unit.name + " is attacking ZonePlayer");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Unit: " + unit.name + " is not active or not on NavMesh");
-                    }
-                }
-            }
-        }
-    }
-}
-

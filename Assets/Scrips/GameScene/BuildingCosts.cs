@@ -7,50 +7,65 @@ using UnityEngine.UI;
 
 public class BuildingCosts : MonoBehaviour
 {
+    public ConfigManager configManager;
+
     public TMP_Text WoodMain, CropMain, RockMain, FoodMain;
     public Button Farm, Temple, Barrack1Lv, Granary, University, SiegeFactory, House, TownCenter, TowerLv1;
     public GameObject Farm3d, Temple3d, Barrack1Lv3d, Granary3d, University3d, SiegeFactory3d, House3d, TownCenter3d, TowerLv1_3d;
     public GameObject plane;
     public GameObject BuildingContainer;
     private int WoodCount, CropCount, RockCount, FoodCount;
-    private GameObject currentFarm; // Текущий перемещаемый объект
-    private bool isPlacing = false; // Флаг для отслеживания режима постройки
+    private GameObject currentFarm;
+    private bool isPlacing = false;
 
-    private Dictionary<Button, BuildingData> buildings;
+    private Dictionary<Button, BuildingInfo> buildings;
+
+    // Вспомогательный класс для хранения информации о префабе и имени здания
+    private class BuildingInfo
+    {
+        public GameObject Prefab { get; }
+        public string BuildingName { get; }
+
+        public BuildingInfo(GameObject prefab, string buildingName)
+        {
+            Prefab = prefab;
+            BuildingName = buildingName;
+        }
+    }
 
     void Start()
     {
-        buildings = new Dictionary<Button, BuildingData>
+        buildings = new Dictionary<Button, BuildingInfo>
         {
-            { Farm, new BuildingData(Farm3d, 5, 5) },
-            { Granary, new BuildingData(Granary3d, 7, 7) },
-            { Barrack1Lv, new BuildingData(Barrack1Lv3d, 7, 15) },
-            { SiegeFactory, new BuildingData(SiegeFactory3d, 15, 25) },
-            { House, new BuildingData(House3d, 5, 10) },
-            { Temple, new BuildingData(Temple3d, 7, 15) }
+            { Farm, new BuildingInfo(Farm3d, "Farm") },
+            { Granary, new BuildingInfo(Granary3d, "Granary") },
+            { Barrack1Lv, new BuildingInfo(Barrack1Lv3d, "Barrack") },
+            { SiegeFactory, new BuildingInfo(SiegeFactory3d, "Siege_Factory") },
+            { House, new BuildingInfo(House3d, "House") },
+            { Temple, new BuildingInfo(Temple3d, "Temple") },
+            { University, new BuildingInfo(University3d, "University") },
+            { TowerLv1, new BuildingInfo(TowerLv1_3d, "Tower") },
+            { TownCenter, new BuildingInfo(TownCenter3d, "Town_Center") }
         };
     }
 
     void Update()
     {
-        // Обновляем ресурсы
         WoodCount = int.Parse(WoodMain.text);
         CropCount = int.Parse(CropMain.text);
         RockCount = int.Parse(RockMain.text);
         FoodCount = int.Parse(FoodMain.text);
 
-        // Проверяем доступность кнопок
         foreach (var entry in buildings)
         {
             UpdateButtonAvailability(entry.Key, entry.Value);
         }
 
-        // Логика размещения
         if (isPlacing && currentFarm != null)
         {
             MoveBuildingWithCursor();
 
-            if (Input.GetMouseButtonDown(0)) // Если нажали ЛКМ
+            if (Input.GetMouseButtonDown(0))
             {
                 if (CanPlaceHere(currentFarm.transform.position))
                 {
@@ -58,47 +73,69 @@ public class BuildingCosts : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Нельзя разместить объект здесь!"); // Место занято
+                    Debug.Log("Нельзя разместить объект здесь!");
                 }
             }
 
-            if (Input.GetMouseButtonDown(1)) // Отмена постройки (ПКМ)
+            if (Input.GetMouseButtonDown(1))
             {
                 CancelPlacement();
             }
         }
     }
 
-    private void UpdateButtonAvailability(Button button, BuildingData buildingData)
+    private void UpdateButtonAvailability(Button button, BuildingInfo buildingInfo)
     {
-        bool isAvailable = WoodCount >= buildingData.WoodCost && RockCount >= buildingData.RockCost;
+        var config = configManager.GetBuildingConfig(buildingInfo.BuildingName);
+        if (config == null) return;
+
+        var cost = config.constructionCost;
+        bool canAfford = WoodCount >= cost.wood
+                      && RockCount >= cost.rock
+                      && CropCount >= cost.crop
+                      && FoodCount >= cost.food;
+
         Transform selectionSprite = button.transform.Find("PanelNo");
-        selectionSprite.gameObject.SetActive(!isAvailable);
+        selectionSprite.gameObject.SetActive(!canAfford);
     }
 
     public void Build(Button button)
     {
         if (!buildings.ContainsKey(button)) return;
 
-        BuildingData buildingData = buildings[button];
+        var buildingInfo = buildings[button];
+        var config = configManager.GetBuildingConfig(buildingInfo.BuildingName);
+        if (config == null) return;
 
-        if (WoodCount < buildingData.WoodCost || RockCount < buildingData.RockCost)
+        var cost = config.constructionCost;
+
+        if (WoodCount < cost.wood || RockCount < cost.rock
+         || CropCount < cost.crop || FoodCount < cost.food)
         {
-            Debug.Log($"Недостаточно ресурсов для постройки {buildingData.Prefab.name}! БОЛЬШЕ работай или в Купер!!!");
+            Debug.Log($"Недостаточно ресурсов для постройки {config.name}!");
             return;
         }
 
-        if (isPlacing) return; // Если уже размещаем, ничего не делаем
+        if (isPlacing) return;
 
         // Вычитаем ресурсы
-        WoodCount -= buildingData.WoodCost;
-        RockCount -= buildingData.RockCost;
+        WoodCount -= cost.wood;
+        RockCount -= cost.rock;
+        CropCount -= cost.crop;
+        FoodCount -= cost.food;
+
+        UpdateUI();
+
+        currentFarm = Instantiate(buildingInfo.Prefab);
+        isPlacing = true;
+    }
+
+    private void UpdateUI()
+    {
         WoodMain.text = WoodCount.ToString();
         RockMain.text = RockCount.ToString();
-
-        // Начинаем размещение
-        currentFarm = Instantiate(buildingData.Prefab);
-        isPlacing = true;
+        CropMain.text = CropCount.ToString();
+        FoodMain.text = FoodCount.ToString();
     }
 
     void MoveBuildingWithCursor()
@@ -106,25 +143,16 @@ public class BuildingCosts : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
-            if (hit.collider.gameObject == plane) // Проверяем, попали ли в плоскость
+            if (hit.collider.gameObject == plane)
             {
-                Vector3 newPosition = hit.point; // Получаем точку на плоскости
+                Vector3 newPosition = hit.point;
                 currentFarm.transform.position = newPosition;
 
-                // Проверяем возможность размещения фермы
                 Transform selectionSprite = currentFarm.transform.Find("SelectionSprite");
                 if (selectionSprite != null)
                 {
-                    if (CanPlaceHere(newPosition))
-                    {
-                        // Если можно поставить, устанавливаем зеленый цвет
-                        selectionSprite.GetComponent<Renderer>().material.color = Color.green;
-                    }
-                    else
-                    {
-                        // Если нельзя поставить, устанавливаем красный цвет
-                        selectionSprite.GetComponent<Renderer>().material.color = Color.red;
-                    }
+                    selectionSprite.GetComponent<Renderer>().material.color =
+                        CanPlaceHere(newPosition) ? Color.green : Color.red;
                 }
             }
         }
@@ -132,43 +160,34 @@ public class BuildingCosts : MonoBehaviour
 
     bool CanPlaceHere(Vector3 position)
     {
-        float radius = 1f; // Радиус проверки
+        float radius = 1f;
         Collider[] colliders = Physics.OverlapSphere(position, radius);
 
         foreach (Collider col in colliders)
         {
-            if (col.gameObject != plane && col.gameObject != currentFarm) // Игнорируем плоскость и текущий объект
+            if (col.gameObject != plane && col.gameObject != currentFarm)
             {
-                return false; // Место занято
+                return false;
             }
         }
-
-        return true; // Место свободно
+        return true;
     }
 
     void PlaceFarm()
     {
         Debug.Log("Объект построен!");
 
-        // Устанавливаем белый цвет и скрываем SelectionSprite
         Transform selectionSprite = currentFarm.transform.Find("SelectionSprite");
         if (selectionSprite != null)
         {
-            selectionSprite.GetComponent<Renderer>().material.color = Color.white; // Устанавливаем белый цвет
-            selectionSprite.gameObject.SetActive(false); // Скрываем объект
+            selectionSprite.GetComponent<Renderer>().material.color = Color.white;
+            selectionSprite.gameObject.SetActive(false);
         }
 
-        // Добавляем объект в контейнер
         currentFarm.transform.SetParent(BuildingContainer.transform);
 
-        // Обновляем NavMeshSurface
-        NavMeshSurface[] surfaces = FindObjectsOfType<NavMeshSurface>();
-        foreach (var surface in surfaces)
-        {
-            surface.BuildNavMesh();
-        }
+        UpdateNavMesh();
 
-        // Завершаем размещение
         isPlacing = false;
         currentFarm = null;
     }
@@ -181,17 +200,12 @@ public class BuildingCosts : MonoBehaviour
         isPlacing = false;
     }
 
-    private class BuildingData
+    private void UpdateNavMesh()
     {
-        public GameObject Prefab { get; }
-        public int WoodCost { get; }
-        public int RockCost { get; }
-
-        public BuildingData(GameObject prefab, int woodCost, int rockCost)
+        NavMeshSurface[] surfaces = FindObjectsOfType<NavMeshSurface>();
+        foreach (var surface in surfaces)
         {
-            Prefab = prefab;
-            WoodCost = woodCost;
-            RockCost = rockCost;
+            surface.BuildNavMesh();
         }
     }
 }

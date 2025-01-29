@@ -80,12 +80,14 @@ public class BreakRockTree : MonoBehaviour
                 NumberWood.text = Convert.ToString(int.Parse(NumberWood.text) + 1);
                 NumberWoodUnit.text = Convert.ToString(int.Parse(NumberWoodUnit.text) + 1);
                 selectionMine1 = selectionVillager.transform.Find("wood");
+                GameOver.AddResource("wood", 1);
             }
             else if (targetObject.name == "Rocks" || targetObject.name == "Rocks(Clone)")
             {
                 NumberRock.text = Convert.ToString(int.Parse(NumberRock.text) + 1);
                 NumberRockUnit.text = Convert.ToString(int.Parse(NumberRockUnit.text) + 1);
                 selectionMine1 = selectionVillager.transform.Find("rock");
+                GameOver.AddResource("rock", 1);
 
             }
             else if(targetObject.name == "farm_model(Clone)")

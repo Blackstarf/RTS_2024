@@ -7,12 +7,65 @@ public class NewBehaviourScript : MonoBehaviour
     public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
     public Camera mainCamera;
 
-
     private List<GameObject> selectedBuldings = new List<GameObject>(); // Список выделенных юнитов
     private Vector2 startMousePos; // Начальная позиция мыши
     private Vector2 endMousePos; // Конечная позиция мыши
     private bool isSelecting = false; // Флаг для отслеживания состояния выделения
     private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
+
+    void Update()
+    {
+        // Проверка на правый клик мыши
+        if (Input.GetMouseButtonDown(1)) // 1 - это правый клик
+        {
+            HandleRightClick();
+        }
+
+        if (Input.GetMouseButtonDown(0)) // Начало выделения (левая кнопка)
+        {
+            startMousePos = Input.mousePosition;
+            isSelecting = true;
+        }
+
+        if (Input.GetMouseButtonUp(0)) // Завершение выделения (левая кнопка)
+        {
+            endMousePos = Input.mousePosition;
+            isSelecting = false;
+            UpdateSelectionBox(); // Обновить размер selection box
+            SelectBuildingInBox(); // Выделить здания в области
+        }
+
+        if (isSelecting)
+        {
+            endMousePos = Input.mousePosition;
+            UpdateSelectionBox();
+        }
+    }
+
+    void HandleRightClick()
+    {
+        // Перевести экранные координаты в мир
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            // Проверяем, попали ли в объект с тегом "Unit"
+            GameObject hitObject = hit.collider.gameObject;
+            if (hitObject.CompareTag("Unit"))
+            {
+                if (!selectedBuldings.Contains(hitObject)) // Если объект ещё не выбран
+                {
+                    SelectBuild(hitObject);
+                }
+                else
+                {
+                    DeselectUnit(hitObject); // Если объект уже выбран, снимаем выделение
+                }
+            }
+        }
+    }
+
     void UpdateSelectionBox()
     {
         float width = endMousePos.x - startMousePos.x;
@@ -47,6 +100,7 @@ public class NewBehaviourScript : MonoBehaviour
             }
         }
     }
+
     void SelectBuild(GameObject unit)
     {
         selectedBuldings.Add(unit);
@@ -56,6 +110,7 @@ public class NewBehaviourScript : MonoBehaviour
             selectionSprite.gameObject.SetActive(true);
         }
     }
+
     void DeselectAllUnits()
     {
         foreach (GameObject unit in selectedBuldings)
@@ -67,5 +122,15 @@ public class NewBehaviourScript : MonoBehaviour
             }
         }
         selectedBuldings.Clear();
+    }
+
+    void DeselectUnit(GameObject unit)
+    {
+        selectedBuldings.Remove(unit);
+        Transform selectionSprite = unit.transform.Find("SelectionSprite");
+        if (selectionSprite != null)
+        {
+            selectionSprite.gameObject.SetActive(false);
+        }
     }
 }
