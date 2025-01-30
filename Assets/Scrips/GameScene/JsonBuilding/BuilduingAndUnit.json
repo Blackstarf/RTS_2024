@@ -45,7 +45,7 @@
         "minRange": 1,
         "maxRange": 2,
         "attackDelay": 1.0,
-        "damage": 5
+        "damage": 20
       }
     },
     {
@@ -192,7 +192,7 @@
     },
     {
       "name": "Town_Center",
-      "durability": 500,
+      "durability": 10,
       "constructionCost": {
         "rock": 60,
         "crop": 60

@@ -44,7 +44,7 @@ public class SizeMapPlayer : MonoBehaviour
             {
                 Transform vragTransform = Vrags.transform.GetChild(i);
                 string enemyNameKey = "Name_" + vragTransform.name.Substring(5); // Adjusted to substring(5) to match "Vrag_"
-                string enemyName = PlayerPrefs.GetString(enemyNameKey, "Враг " + (i + 1));
+                string enemyName = PlayerPrefs.GetString(enemyNameKey);
 
                 // Find the TMP_Text component named "Player"
                 TMP_Text enemyText = vragTransform.GetComponentInChildren<TMP_Text>(true);
