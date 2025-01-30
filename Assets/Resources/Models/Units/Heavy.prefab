@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 5325431170593008452}
   - component: {fileID: 2214803314593051169}
   m_Layer: 0
-  m_Name: Heavy Warrior
+  m_Name: Heavy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118,7 +118,7 @@ Transform:
   - {fileID: 8741757554513164269}
   - {fileID: 5591720945345634325}
   m_Father: {fileID: 0}
-  m_RootOrder: -2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!33 &5325431170593008452
 MeshFilter:

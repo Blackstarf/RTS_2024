@@ -6,7 +6,15 @@ using UnityEngine.AI;
 public class Attaka : MonoBehaviour
 {
     public GameObject ZonePlayer, Vrags; // GameObject to which units will move
+    public GameObject UnitPrefab; // Prefab for the enemy units
+    private float spawnInterval = 15f; // Interval for spawning units
     private bool hasAttacked = false; // Flag to track if the attack log has been printed
+
+    void Start()
+    {
+        // Start the coroutine to spawn units
+        StartCoroutine(SpawnUnits());
+    }
 
     void Update()
     {
@@ -23,7 +31,7 @@ public class Attaka : MonoBehaviour
             foreach (Transform child in vrag1Transform)
             {
                 GameObject unit = child.gameObject;
-                if (unit.CompareTag("UnitVrag")&& unit.name!= "Worker")
+                if (unit.CompareTag("UnitVrag") && unit.name != "Worker")
                 {
                     unitsUnderVrag1.Add(unit);
                 }
@@ -43,7 +51,7 @@ public class Attaka : MonoBehaviour
                     if (agent != null && agent.isActiveAndEnabled)
                     {
                         agent.SetDestination(ZonePlayer.transform.position);
-                        // Debug.Log("Unit: " + unit.name + " is attacking ZonePlayer");
+                        StartCoroutine(CheckForObstacles(agent, ZonePlayer.transform.position));
                     }
                     else
                     {
@@ -53,162 +61,44 @@ public class Attaka : MonoBehaviour
             }
         }
     }
+
+    IEnumerator SpawnUnits()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(spawnInterval);
+
+            Transform vrag1Transform = Vrags.transform.Find("Vrag_1");
+            if (vrag1Transform != null)
+            {
+                Vector3 spawnPosition = vrag1Transform.position + new Vector3(Random.Range(-2, 2), 0, Random.Range(-2, 2));
+                GameObject newUnit = Instantiate(UnitPrefab, spawnPosition, Quaternion.identity);
+                newUnit.transform.SetParent(vrag1Transform);
+                newUnit.tag = "UnitVrag";
+
+                NavMeshAgent agent = newUnit.GetComponent<NavMeshAgent>();
+                if (agent != null)
+                {
+                    agent.SetDestination(ZonePlayer.transform.position);
+                }
+            }
+        }
+    }
+
+    IEnumerator CheckForObstacles(NavMeshAgent agent, Vector3 destination)
+    {
+        while (agent.pathPending || agent.remainingDistance > agent.stoppingDistance)
+        {
+            yield return null;
+        }
+
+        if (agent.pathStatus == NavMeshPathStatus.PathInvalid || agent.pathStatus == NavMeshPathStatus.PathPartial)
+        {
+            Debug.LogWarning("Unit: " + agent.name + " encountered an obstacle and is stuck");
+            // Logic to handle the unit being stuck
+            // For example, you can try to find an alternative path or reset the destination
+            agent.ResetPath();
+            agent.SetDestination(destination);
+        }
+    }
 }
-//public class Attaka : MonoBehaviour
-//{
-//    public GameObject ZonePlayer, Vrags; // GameObject to which units will move
-//    public float detectionRadius = 10f; // Radius for detecting enemy units/buildings
-//    public float minAttackDistance = 2f; // Minimum distance for attacking
-//    public float maxAttackDistance = 5f; // Maximum distance for attacking
-//    public float buildProgress = 0f; // Progress of building construction
-//    public float buildTime = 10f; // Time required to build a building
-//    public int maxUnits = 5; // Maximum number of units to train
-
-//    private List<GameObject> enemyUnits = new List<GameObject>(); // List to hold enemy units
-//    private List<GameObject> playerUnits = new List<GameObject>(); // List to hold player units
-//    private List<GameObject> playerBuildings = new List<GameObject>(); // List to hold player buildings
-
-//    void Start()
-//    {
-//        // Initialize enemy units and buildings
-//        InitializeEnemyUnits();
-//    }
-
-//    void Update()
-//    {
-//        // Check if there are 5 or more units under Vrags and attack ZonePlayer
-//        CheckAndAttackZonePlayer();
-
-//        // Update building progress
-//        UpdateBuildingProgress();
-
-//        // Check for enemy units in detection radius
-//        DetectAndAttackPlayerUnits();
-//    }
-
-//    void InitializeEnemyUnits()
-//    {
-//        Transform vrag1Transform = Vrags.transform.Find("Vrag_1");
-//        if (vrag1Transform != null)
-//        {
-//            foreach (Transform child in vrag1Transform)
-//            {
-//                GameObject unit = child.gameObject;
-//                if (unit.CompareTag("Unit"))
-//                {
-//                    enemyUnits.Add(unit);
-//                }
-//            }
-//        }
-//    }
-
-//    void CheckAndAttackZonePlayer()
-//    {
-//        if (enemyUnits.Count >= maxUnits)
-//        {
-//            foreach (GameObject unit in enemyUnits)
-//            {
-//                NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-//                if (agent != null && agent.isActiveAndEnabled)
-//                {
-//                    agent.SetDestination(ZonePlayer.transform.position);
-//                    Debug.Log("Unit: " + unit.name + " is attacking ZonePlayer");
-//                }
-//                else
-//                {
-//                    Debug.LogWarning("Unit: " + unit.name + " is not active or not on NavMesh");
-//                }
-//            }
-//        }
-//    }
-
-//    void UpdateBuildingProgress()
-//    {
-//        // Simulate building progress
-//        buildProgress += Time.deltaTime / buildTime;
-//        buildProgress = Mathf.Clamp01(buildProgress);
-
-//        // Update building progress UI (if any)
-//        // Example: Update a progress bar or text display
-//    }
-
-//    void DetectAndAttackPlayerUnits()
-//    {
-//        foreach (GameObject unit in enemyUnits)
-//        {
-//            foreach (GameObject playerUnit in playerUnits)
-//            {
-//                float distance = Vector3.Distance(unit.transform.position, playerUnit.transform.position);
-//                if (distance <= detectionRadius)
-//                {
-//                    NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-//                    if (agent != null && agent.isActiveAndEnabled)
-//                    {
-//                        if (distance > maxAttackDistance)
-//                        {
-//                            agent.SetDestination(playerUnit.transform.position);
-//                        }
-//                        else if (distance < minAttackDistance)
-//                        {
-//                            agent.SetDestination(unit.transform.position + (unit.transform.position - playerUnit.transform.position).normalized * minAttackDistance);
-//                        }
-//                        else
-//                        {
-//                            // Attack logic here
-//                            Debug.Log("Unit: " + unit.name + " is attacking " + playerUnit.name);
-//                        }
-//                    }
-//                }
-//            }
-
-//            foreach (GameObject playerBuilding in playerBuildings)
-//            {
-//                float distance = Vector3.Distance(unit.transform.position, playerBuilding.transform.position);
-//                if (distance <= detectionRadius)
-//                {
-//                    NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-//                    if (agent != null && agent.isActiveAndEnabled)
-//                    {
-//                        if (distance > maxAttackDistance)
-//                        {
-//                            agent.SetDestination(playerBuilding.transform.position);
-//                        }
-//                        else if (distance < minAttackDistance)
-//                        {
-//                            agent.SetDestination(unit.transform.position + (unit.transform.position - playerBuilding.transform.position).normalized * minAttackDistance);
-//                        }
-//                        else
-//                        {
-//                            // Attack logic here
-//                            Debug.Log("Unit: " + unit.name + " is attacking " + playerBuilding.name);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-//    void OnTriggerEnter(Collider other)
-//    {
-//        if (other.CompareTag("PlayerUnit"))
-//        {
-//            playerUnits.Add(other.gameObject);
-//        }
-//        else if (other.CompareTag("PlayerBuilding"))
-//        {
-//            playerBuildings.Add(other.gameObject);
-//        }
-//    }
-
-//    void OnTriggerExit(Collider other)
-//    {
-//        if (other.CompareTag("PlayerUnit"))
-//        {
-//            playerUnits.Remove(other.gameObject);
-//        }
-//        else if (other.CompareTag("PlayerBuilding"))
-//        {
-//            playerBuildings.Remove(other.gameObject);
-//        }
-//    }
-//}

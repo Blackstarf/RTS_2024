@@ -191,7 +191,7 @@ public class GoUnits : MonoBehaviour
                     NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
                     if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
                     {
-                        Debug.Log("Moving unit: " + unit.name);
+                        //Debug.Log("Moving unit: " + unit.name);
                         agent.SetDestination(hit.point);
                     }
                     else
