@@ -43,7 +43,10 @@ public class GoUnits : MonoBehaviour
             }
         }
 
-        //Меняем картинку
+        // Удаляем уничтоженные объекты из списка selectedUnits
+        selectedUnits.RemoveAll(unit => unit == null);
+
+        // Меняем картинку
         foreach (Image obj in Images)
         {
             obj.gameObject.SetActive(false);
@@ -51,13 +54,15 @@ public class GoUnits : MonoBehaviour
 
         for (int i = 0; i < selectedUnits.Count; i++)
         {
+            if (selectedUnits[i] == null) continue; // Пропускаем уничтоженные объекты
+
             if (selectedUnits.Count == 1)
             {
                 Panel.SetActive(true);
                 PanellotUnits.SetActive(false);
                 for (int j = 0; j < UnitsObject.Length; j++)
                 {
-                    if (selectedUnits[0].name == UnitsObject[j].name)
+                    if (selectedUnits[i].name == UnitsObject[j].name)
                     {
                         UnitOrBuilds.sprite = UnitsObject[j];
                         if (UnitsObject[j].name == "Town_Center")
@@ -70,7 +75,7 @@ public class GoUnits : MonoBehaviour
                         }
                     }
                 }
-                if (gameObject.name != "Worker")
+                if (selectedUnits[i].name != "Worker")
                 {
                     PanelBuidings.SetActive(true);
                 }
@@ -82,10 +87,12 @@ public class GoUnits : MonoBehaviour
 
                 for (int j = 0; j < selectedUnits.Count; j++)
                 {
+                    if (selectedUnits[j] == null) continue; // Пропускаем уничтоженные объекты
+
                     Images[i].gameObject.SetActive(true);
                     for (int x = 0; x < UnitsObject.Length; x++)
                     {
-                        if (selectedUnits[i].name == UnitsObject[x].name)
+                        if (selectedUnits[j].name == UnitsObject[x].name)
                         {
                             Images[i].sprite = UnitsObject[x];
                             break;
@@ -96,13 +103,15 @@ public class GoUnits : MonoBehaviour
         }
 
         Transform transform = PanelCommand.transform.Find("PanelAtatka");
-        foreach (GameObject gameObject in selectedUnits)
+        foreach (GameObject unit in selectedUnits)
         {
-            if (gameObject.name != "Worker")
+            if (unit == null) continue; // Пропускаем уничтоженные объекты
+
+            if (unit.name != "Worker")
             {
                 PanelBuidings.SetActive(false);
             }
-            if (gameObject.name == "Knight" || gameObject.name == "Archer" || gameObject.name == "Heavy" || gameObject.name == "Catapult" || gameObject.name == "SiegeTower")
+            if (unit.name == "Knight" || unit.name == "Archer" || unit.name == "Heavy" || unit.name == "Catapult" || unit.name == "SiegeTower")
             {
                 transform.gameObject.SetActive(true);
             }

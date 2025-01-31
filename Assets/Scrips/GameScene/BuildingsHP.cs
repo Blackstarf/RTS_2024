@@ -5,7 +5,7 @@ public class BuildingsHP : MonoBehaviour
     public ConfigManager configManager;
 
     private int maxHP;
-    private int currentHP;
+    public int currentHP;
 
     void Start()
     {

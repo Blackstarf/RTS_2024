@@ -7,7 +7,7 @@ public class Attaka : MonoBehaviour
 {
     public GameObject ZonePlayer, Vrags; // GameObject to which units will move
     public GameObject UnitPrefab; // Prefab for the enemy units
-    private float spawnInterval = 15f; // Interval for spawning units
+    private float spawnInterval = 1500f; // Interval for spawning units
     private bool hasAttacked = false; // Flag to track if the attack log has been printed
 
     void Start()

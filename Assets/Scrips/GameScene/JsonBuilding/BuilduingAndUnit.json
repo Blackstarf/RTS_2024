@@ -11,7 +11,7 @@
       "detectionRange": 15,
       "attack": {
         "minRange": 3,
-        "maxRange": 10,
+        "maxRange": 15,
         "attackDelay": 1.5,
         "damage": 15
       }
@@ -43,9 +43,9 @@
       "detectionRange": 10,
       "attack": {
         "minRange": 1,
-        "maxRange": 2,
+        "maxRange": 3,
         "attackDelay": 1.0,
-        "damage": 20
+        "damage": 10
       }
     },
     {

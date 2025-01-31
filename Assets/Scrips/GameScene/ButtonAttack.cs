@@ -1,108 +1,7 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
-//using UnityEngine.AI;
-
-//public class ButtonAttack : MonoBehaviour
-//{
-//    public GameObject ZonePlayer;  // Мы его используем для нахождения цели (если нужно)
-//    private GameObject[] attackunits;
-//    private GameObject townCenter; // Ссылка на Town_Center, чтобы атаковать его
-
-//    void Start()
-//    {
-//        // Найдем объект с именем Vrag_1 и получим ссылку на Town_Center
-//        GameObject vrag1 = GameObject.Find("Vrag_1");
-//        if (vrag1 != null)
-//        {
-//            townCenter = vrag1.transform.Find("Town_Center")?.gameObject;
-//        }
-//    }
-
-//    public void Attack()
-//    {
-//        // Логика для атаки
-//        Debug.Log("Атака на юнитов!");
-
-//        // Список имен юнитов для атаки
-//        string[] unitNames = { "Siege_Tower", "Light_infantry", "Heavy", "Catapult", "Archer" };
-
-//        // Ищем все объекты с нужными именами и добавляем их в массив
-//        List<GameObject> unitsList = new List<GameObject>();
-
-//        foreach (string unitName in unitNames)
-//        {
-//            GameObject[] units = GameObject.FindGameObjectsWithTag("Unit");
-
-//            foreach (GameObject unit in units)
-//            {
-//                if (unit.name.Contains(unitName)) // Если имя объекта совпадает с нужным
-//                {
-//                    unitsList.Add(unit);
-
-//                    // Ищем и активируем "SelectionSprite"
-//                    Transform selectionSprite = unit.transform.Find("SelectionSprite");
-//                    if (selectionSprite != null)
-//                    {
-//                        selectionSprite.gameObject.SetActive(true);
-//                    }
-//                }
-//            }
-//        }
-
-//        // Преобразуем список в массив
-//        attackunits = unitsList.ToArray();
-
-//        // Перебираем все найденные юниты и ставим их цель
-//        foreach (GameObject unit in attackunits)
-//        {
-//            Debug.Log($"Юнит {unit.name} теперь атакует!");
-
-//            // Устанавливаем цель для каждого юнита (движемся к Town_Center)
-//            MoveUnitToTarget(unit);
-//            AttackEnemy(unit);
-//        }
-//    }
-
-//    void MoveUnitToTarget(GameObject unit)
-//    {
-//        if (townCenter != null)
-//        {
-//            // Получаем NavMeshAgent и задаем цель
-//            NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-//            if (agent != null)
-//            {
-//                agent.SetDestination(townCenter.transform.position);
-//                agent.isStopped = false; // Убеждаемся, что агент двигается
-//            }
-//        }
-//        else
-//        {
-//            Debug.LogWarning("Town_Center не найден!");
-//        }
-//    }
-
-//    void AttackEnemy(GameObject unit)
-//    {
-//        // Находим вражеские юниты для атаки (пока ищем по тегу UnitVrag)
-//        GameObject[] enemyUnits = GameObject.FindGameObjectsWithTag("UnitVrag");
-//        foreach (GameObject enemy in enemyUnits)
-//        {
-//            // Проверяем, есть ли на вражеском объекте нужный компонент для получения урона
-//            UnitHpAndCommand enemyCommand = enemy.GetComponent<UnitHpAndCommand>();
-//            if (enemyCommand != null)
-//            {
-//                // Если вражеский юнит найден, атакуем его
-//                enemyCommand.TakeDamage(10); // Пример урона
-//                Debug.Log($"{unit.name} атакует {enemy.name}");
-//                break; // Если юнит атакует одного врага, прерываем цикл (можно расширить для нескольких)
-//            }
-//        }
-//    }
-//}
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine.AI;
 
 public class ButtonAttack : MonoBehaviour
 {
@@ -119,7 +18,7 @@ public class ButtonAttack : MonoBehaviour
         // Список имен юнитов, которые нужно добавить
         string[] unitNames = { "Siege_Tower", "Light_infantry", "Heavy", "Catapult", "Archer" };
 
-        // Перебираем все объекты с тегом "Unit"
+        // Перебираем все объекты с тегом "Unit" (юниты игрока)
         GameObject[] units = GameObject.FindGameObjectsWithTag("Unit");
 
         foreach (GameObject unit in units)
@@ -143,26 +42,53 @@ public class ButtonAttack : MonoBehaviour
         // Преобразуем список в массив
         attackUnits = unitsList.ToArray();
 
+        // Если нет юнитов для атаки
+        if (attackUnits.Length == 0)
+        {
+            Debug.Log("Нет доступных юнитов для атаки!");
+            return;
+        }
+
         // Находим цель для атаки
-        GameObject target = FindBestAttackTarget(attackUnits);
+        GameObject target = FindBestAttackTarget();
         if (target == null)
         {
             Debug.Log("Нет целей для атаки!");
             return;
         }
 
-        //// Отправляем юнитов к цели
-        //foreach (GameObject unit in attackUnits)
-        //{
-        //    UnitHpAndCommand unitScript = unit.GetComponent<UnitHpAndCommand>();
-        //    if (unitScript != null)
-        //    {
-        //        unitScript.SetAttackTarget(target);
-        //    }
-        //}
+        // Отправляем юнитов к цели
+        SendUnitsToAttack(target);
+    }
+    GameObject FindClosestEnemy(GameObject[] enemies)
+    {
+        GameObject closest = null;
+        float minDistance = Mathf.Infinity;
+
+        foreach (GameObject enemy in enemies)
+        {
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closest = enemy;
+            }
+        }
+        return closest;
     }
 
-    private GameObject FindBestAttackTarget(GameObject[] potentialAttackers)
+    GameObject FindEnemyBase()
+    {
+        GameObject vrag1 = GameObject.Find("Vrag_1");
+        if (vrag1 != null)
+        {
+            Transform townCenter = vrag1.transform.Find("Town_Center");
+            return townCenter?.gameObject;
+        }
+        return null;
+    }
+
+    private GameObject FindBestAttackTarget()
     {
         GameObject closestEnemyUnit = null;
         float closestDistance = Mathf.Infinity;
@@ -180,7 +106,10 @@ public class ButtonAttack : MonoBehaviour
         }
 
         if (closestEnemyUnit != null)
+        {
+            Debug.Log("Найден вражеский юнит для атаки: " + closestEnemyUnit.name);
             return closestEnemyUnit;
+        }
 
         // Если вражеских юнитов нет, ищем ближайший Town_Center внутри Vrag_1
         GameObject vrag1 = GameObject.Find("Vrag_1");
@@ -189,10 +118,44 @@ public class ButtonAttack : MonoBehaviour
             Transform townCenter = vrag1.transform.Find("Town_Center");
             if (townCenter != null)
             {
+                Debug.Log("Найдена база для атаки: " + townCenter.name);
                 return townCenter.gameObject;
             }
         }
 
+        Debug.Log("Целей для атаки не найдено.");
         return null; // Если целей нет
+    }
+
+    private void SendUnitsToAttack(GameObject target)
+    {
+        if (attackUnits == null || attackUnits.Length == 0)
+        {
+            Debug.Log("Нет юнитов для атаки!");
+            return;
+        }
+
+        foreach (GameObject unit in attackUnits)
+        {
+            // Получаем компонент NavMeshAgent для перемещения юнита
+            NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
+            if (agent != null)
+            {
+                // Устанавливаем цель для перемещения
+                agent.SetDestination(target.transform.position);
+            }
+
+            // Получаем компонент UnitHpAndCommand для атаки
+            UnitHpAndCommand unitScript = unit.GetComponent<UnitHpAndCommand>();
+            if (unitScript != null)
+            {
+                // Устанавливаем цель для атаки
+                unitScript.SetAttackTarget(target);
+            }
+            else
+            {
+                Debug.LogWarning($"У юнита {unit.name} отсутствует компонент UnitHpAndCommand.");
+            }
+        }
     }
 }
