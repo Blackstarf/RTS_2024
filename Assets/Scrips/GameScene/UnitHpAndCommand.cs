@@ -7,7 +7,7 @@ public class UnitHpAndCommand : MonoBehaviour
     public ConfigManager configManager;
 
     [Header("Боевые параметры")]
-    public float attackCooldown = 1.5f; // Задержка между атаками
+    private float attackCooldown = 1.5f; // Задержка между атаками
 
     // Приватные переменные
     private NavMeshAgent agent;
@@ -127,7 +127,7 @@ public class UnitHpAndCommand : MonoBehaviour
     void FindBuildingsTarget()
     {
         // Ищем ближайший объект с тегом "Buildings"
-        GameObject[] buildings = GameObject.FindGameObjectsWithTag("Buildings");
+        GameObject[] buildings = GameObject.FindGameObjectsWithTag("BasePlayer");
         float closestDistance = Mathf.Infinity;
         GameObject closestBuilding = null;
 
@@ -214,6 +214,7 @@ public class UnitHpAndCommand : MonoBehaviour
         }
     }
 
+
     public void SetAttackTarget(GameObject target)
     {
         currentTarget = target;
@@ -224,6 +225,8 @@ public class UnitHpAndCommand : MonoBehaviour
         currentHP -= damage;
         if (currentHP <= 0)
         {
+            //if (gameObject.tag == "BasePlayer") { 
+            //}
             Destroy(gameObject);
         }
     }

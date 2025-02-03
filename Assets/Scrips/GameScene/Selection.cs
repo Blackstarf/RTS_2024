@@ -11,7 +11,6 @@ public class NewBehaviourScript : MonoBehaviour
     private Vector2 startMousePos; // Начальная позиция мыши
     private Vector2 endMousePos; // Конечная позиция мыши
     private bool isSelecting = false; // Флаг для отслеживания состояния выделения
-    private bool isInNoSelectionZone = false; // Флаг для отслеживания нахождения в запрещенной зоне
 
     void Update()
     {
@@ -52,7 +51,7 @@ public class NewBehaviourScript : MonoBehaviour
         {
             // Проверяем, попали ли в объект с тегом "Unit"
             GameObject hitObject = hit.collider.gameObject;
-            if (hitObject.CompareTag("Unit"))
+            if (hitObject.CompareTag("UnitVragBase"))
             {
                 if (!selectedBuldings.Contains(hitObject)) // Если объект ещё не выбран
                 {
@@ -89,7 +88,7 @@ public class NewBehaviourScript : MonoBehaviour
         Vector2 min = Vector2.Min(startMousePos, endMousePos);
         Vector2 max = Vector2.Max(startMousePos, endMousePos);
 
-        foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit"))
+        foreach (GameObject unit in GameObject.FindGameObjectsWithTag("UnitVragBase"))
         {
             Vector3 screenPos = mainCamera.WorldToScreenPoint(unit.transform.position);
 

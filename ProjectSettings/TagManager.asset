@@ -9,6 +9,9 @@ TagManager:
   - SelectionSprite
   - Buildings
   - Selectable
+  - UnitVrag
+  - UnitVragBase
+  - BasePlayer
   layers:
   - Default
   - TransparentFX

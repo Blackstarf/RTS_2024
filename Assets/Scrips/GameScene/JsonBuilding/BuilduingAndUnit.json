@@ -11,7 +11,7 @@
       "detectionRange": 15,
       "attack": {
         "minRange": 3,
-        "maxRange": 15,
+        "maxRange": 7,
         "attackDelay": 1.5,
         "damage": 15
       }
@@ -34,7 +34,7 @@
     },
     {
       "name": "Heavy",
-      "movementSpeed": 4.0,
+      "movementSpeed": 7.0,
       "health": 50,
       "trainingCost": {
         "crop": 15,
@@ -192,7 +192,7 @@
     },
     {
       "name": "Town_Center",
-      "durability": 10,
+      "durability": 100,
       "constructionCost": {
         "rock": 60,
         "crop": 60

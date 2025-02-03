@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class GameOver : MonoBehaviour
 {
+    public GameObject Gameend;
     // Переменные для хранения количества ресурсов
     private static int woodCollected = 0;
     private static int rockCollected = 0;
@@ -23,8 +24,12 @@ public class GameOver : MonoBehaviour
 
     private void Update()
     {
-        // Обновляем время сессии
-        sessionTime += Time.deltaTime;
+        if (Gameend.activeSelf == false)
+        {
+            // Обновляем время сессии
+            sessionTime += Time.deltaTime;
+        }
+        
 
         // Обновляем UI
         UpdateUI();

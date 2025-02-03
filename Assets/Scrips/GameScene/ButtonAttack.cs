@@ -1,161 +1,215 @@
-using UnityEngine;
-using System.Linq;
+п»їusing UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
+using System.Collections;
 
 public class ButtonAttack : MonoBehaviour
 {
-    public GameObject ZonePlayer; // Объект ZonePlayer
-    private GameObject[] attackUnits; // Массив юнитов для атаки
+    public GameObject ZonePlayer, Vrags;
+    private GameObject[] attackUnits;
 
     public void Attack()
     {
-        Debug.Log("Атака на врагов!");
+        Debug.Log("РђС‚Р°РєР° РЅР°С‡Р°Р»Р°СЃСЊ!");
 
-        // Ищем все объекты с нужными именами и добавляем их в массив
+        // 1. РЎРѕР±РёСЂР°РµРј РІС‹РґРµР»РµРЅРЅС‹С… СЋРЅРёС‚РѕРІ РёРіСЂРѕРєР°
         List<GameObject> unitsList = new List<GameObject>();
-
-        // Список имен юнитов, которые нужно добавить
         string[] unitNames = { "Siege_Tower", "Light_infantry", "Heavy", "Catapult", "Archer" };
 
-        // Перебираем все объекты с тегом "Unit" (юниты игрока)
-        GameObject[] units = GameObject.FindGameObjectsWithTag("Unit");
-
-        foreach (GameObject unit in units)
+        foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit"))
         {
-            foreach (string unitName in unitNames)
+            foreach (string name in unitNames)
             {
-                if (unit.name.Contains(unitName))
+                if (unit.name.Contains(name))
                 {
                     unitsList.Add(unit);
-
-                    // Ищем и активируем "SelectionSprite"
-                    Transform selectionSprite = unit.transform.Find("SelectionSprite");
-                    if (selectionSprite != null)
-                    {
-                        selectionSprite.gameObject.SetActive(true);
-                    }
+                    ToggleSelectionSprite(unit, true);
                 }
             }
         }
 
-        // Преобразуем список в массив
         attackUnits = unitsList.ToArray();
-
-        // Если нет юнитов для атаки
         if (attackUnits.Length == 0)
         {
-            Debug.Log("Нет доступных юнитов для атаки!");
+            Debug.Log("РќРµС‚ РґРѕСЃС‚СѓРїРЅС‹С… СЋРЅРёС‚РѕРІ!");
             return;
         }
 
-        // Находим цель для атаки
-        GameObject target = FindBestAttackTarget();
-        if (target == null)
+        // 2. РќР°С…РѕРґРёРј С†РµР»Рё РґР»СЏ Р°С‚Р°РєРё
+        GameObject target = FindPriorityTarget();
+        if (target != null)
         {
-            Debug.Log("Нет целей для атаки!");
-            return;
+            StartCoroutine(AttackSequence(target));
         }
-
-        // Отправляем юнитов к цели
-        SendUnitsToAttack(target);
     }
-    GameObject FindClosestEnemy(GameObject[] enemies)
+
+    GameObject FindPriorityTarget()
     {
-        GameObject closest = null;
-        float minDistance = Mathf.Infinity;
-
-        foreach (GameObject enemy in enemies)
+        if (Vrags == null)
         {
-            float distance = Vector3.Distance(transform.position, enemy.transform.position);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                closest = enemy;
-            }
+            Debug.LogError("РћР±СЉРµРєС‚ Vrags РЅРµ РЅР°Р·РЅР°С‡РµРЅ РІ РёРЅСЃРїРµРєС‚РѕСЂРµ!");
+            return null;
         }
-        return closest;
+
+        Transform vrag1 = Vrags.transform.Find("Vrag_1");
+
+        // Р•СЃР»Рё РІСЂР°Рі СѓР¶Рµ СѓРЅРёС‡С‚РѕР¶РµРЅ вЂ” РѕС‚РїСЂР°РІР»СЏРµРј СЋРЅРёС‚РѕРІ РЅР° ZonePlayer
+        if (vrag1 == null)
+        {
+            Debug.Log("Р’СЂР°Р¶РµСЃРєР°СЏ Р±Р°Р·Р° СѓРЅРёС‡С‚РѕР¶РµРЅР°! Р®РЅРёС‚С‹ РЅР°РїСЂР°РІР»СЏСЋС‚СЃСЏ РЅР° Р±Р°Р·Сѓ РёРіСЂРѕРєР°.");
+            MoveUnitsToBase();
+            return null;
+        }
+
+        // РџРѕРёСЃРє РІСЂР°РіРѕРІ РІРЅСѓС‚СЂРё Vrag_1
+        List<GameObject> enemies = new List<GameObject>();
+        FindTargetsInHierarchy(vrag1, "UnitVrag", enemies);
+
+        if (enemies.Count > 0)
+        {
+            return GetClosestTarget(enemies);
+        }
+
+        // Р•СЃР»Рё СЋРЅРёС‚РѕРІ РЅРµС‚ - РёС‰РµРј Town_Center
+        Transform baseTransform = vrag1.Find("Town_Center");
+
+        if (baseTransform == null || !baseTransform.gameObject.activeSelf)
+        {
+            Debug.Log("Р’СЂР°Р¶РµСЃРєР°СЏ Р±Р°Р·Р° СѓРЅРёС‡С‚РѕР¶РµРЅР°! РџРµСЂРµРєР»СЋС‡Р°РµРјСЃСЏ РЅР° ZonePlayer.");
+            MoveUnitsToBase();
+            return null;
+        }
+
+        return baseTransform.gameObject;
     }
 
-    GameObject FindEnemyBase()
+    void FindTargetsInHierarchy(Transform parent, string tag, List<GameObject> results)
     {
-        GameObject vrag1 = GameObject.Find("Vrag_1");
-        if (vrag1 != null)
+        foreach (Transform child in parent)
         {
-            Transform townCenter = vrag1.transform.Find("Town_Center");
-            return townCenter?.gameObject;
+            if (child.CompareTag(tag)) results.Add(child.gameObject);
+            if (child.childCount > 0) FindTargetsInHierarchy(child, tag, results);
         }
-        return null;
     }
 
-    private GameObject FindBestAttackTarget()
-    {
-        GameObject closestEnemyUnit = null;
-        float closestDistance = Mathf.Infinity;
-
-        // Сначала ищем ближайших вражеских юнитов (UnitVrag)
-        GameObject[] enemyUnits = GameObject.FindGameObjectsWithTag("UnitVrag");
-        foreach (GameObject enemyUnit in enemyUnits)
-        {
-            float distance = Vector3.Distance(enemyUnit.transform.position, transform.position);
-            if (distance < closestDistance)
-            {
-                closestEnemyUnit = enemyUnit;
-                closestDistance = distance;
-            }
-        }
-
-        if (closestEnemyUnit != null)
-        {
-            Debug.Log("Найден вражеский юнит для атаки: " + closestEnemyUnit.name);
-            return closestEnemyUnit;
-        }
-
-        // Если вражеских юнитов нет, ищем ближайший Town_Center внутри Vrag_1
-        GameObject vrag1 = GameObject.Find("Vrag_1");
-        if (vrag1 != null)
-        {
-            Transform townCenter = vrag1.transform.Find("Town_Center");
-            if (townCenter != null)
-            {
-                Debug.Log("Найдена база для атаки: " + townCenter.name);
-                return townCenter.gameObject;
-            }
-        }
-
-        Debug.Log("Целей для атаки не найдено.");
-        return null; // Если целей нет
-    }
-
-    private void SendUnitsToAttack(GameObject target)
+    GameObject GetClosestTarget(List<GameObject> targets)
     {
         if (attackUnits == null || attackUnits.Length == 0)
         {
-            Debug.Log("Нет юнитов для атаки!");
+            Debug.LogWarning("РќРµС‚ Р°С‚Р°РєСѓСЋС‰РёС… СЋРЅРёС‚РѕРІ!");
+            return null;
+        }
+
+        GameObject closest = null;
+        float minDistance = Mathf.Infinity;
+
+        targets = targets.FindAll(target => target != null && target.activeSelf);
+
+        if (targets.Count == 0)
+        {
+            Debug.LogWarning("Р’СЃРµ С†РµР»Рё СѓРЅРёС‡С‚РѕР¶РµРЅС‹!");
+            return null;
+        }
+
+        GameObject firstUnit = attackUnits[0];
+        if (firstUnit == null || !firstUnit.activeSelf)
+        {
+            Debug.LogWarning("РџРµСЂРІС‹Р№ Р°С‚Р°РєСѓСЋС‰РёР№ СЋРЅРёС‚ СѓРЅРёС‡С‚РѕР¶РµРЅ!");
+            return null;
+        }
+
+        foreach (GameObject target in targets)
+        {
+            if (target == null || !target.activeSelf) continue;
+
+            float distance = Vector3.Distance(
+                firstUnit.transform.position,
+                target.transform.position
+            );
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closest = target;
+            }
+        }
+
+        return closest;
+    }
+
+    IEnumerator AttackSequence(GameObject target)
+    {
+        if (target == null || !target.activeSelf)
+        {
+            Debug.LogWarning("Р¦РµР»СЊ СѓРЅРёС‡С‚РѕР¶РµРЅР° РґРѕ РЅР°С‡Р°Р»Р° Р°С‚Р°РєРё!");
+            yield break;
+        }
+
+        Debug.Log($"Р¦РµР»СЊ Р°С‚Р°РєРё: {target.name}");
+
+        while (target != null && target.activeSelf)
+        {
+            attackUnits = System.Array.FindAll(attackUnits, unit => unit != null && unit.activeSelf);
+
+            if (attackUnits.Length == 0)
+            {
+                Debug.LogWarning("Р’СЃРµ Р°С‚Р°РєСѓСЋС‰РёРµ СЋРЅРёС‚С‹ СѓРЅРёС‡С‚РѕР¶РµРЅС‹! РђС‚Р°РєР° РѕС‚РјРµРЅРµРЅР°.");
+                yield break;
+            }
+
+            foreach (GameObject unit in attackUnits)
+            {
+                if (unit == null || !unit.activeSelf) continue;
+
+                NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
+                UnitHpAndCommand controller = unit.GetComponent<UnitHpAndCommand>();
+
+                if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+                {
+                    agent.SetDestination(target.transform.position);
+                    if (controller != null) controller.SetAttackTarget(target);
+                }
+            }
+
+            yield return new WaitForSeconds(2f);
+
+            if (target == null || !target.activeSelf)
+            {
+                Debug.Log("Р¦РµР»СЊ СѓРЅРёС‡С‚РѕР¶РµРЅР°! РС‰РµРј РЅРѕРІСѓСЋ...");
+                GameObject newTarget = FindPriorityTarget();
+                if (newTarget != null) StartCoroutine(AttackSequence(newTarget));
+                yield break;
+            }
+        }
+    }
+
+    void MoveUnitsToBase()
+    {
+        if (ZonePlayer == null)
+        {
+            Debug.LogError("ZonePlayer РЅРµ РЅР°Р·РЅР°С‡РµРЅ РІ РёРЅСЃРїРµРєС‚РѕСЂРµ!");
             return;
         }
 
         foreach (GameObject unit in attackUnits)
         {
-            // Получаем компонент NavMeshAgent для перемещения юнита
-            NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-            if (agent != null)
-            {
-                // Устанавливаем цель для перемещения
-                agent.SetDestination(target.transform.position);
-            }
+            if (unit == null || !unit.activeSelf) continue;
 
-            // Получаем компонент UnitHpAndCommand для атаки
-            UnitHpAndCommand unitScript = unit.GetComponent<UnitHpAndCommand>();
-            if (unitScript != null)
+            NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
+            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
             {
-                // Устанавливаем цель для атаки
-                unitScript.SetAttackTarget(target);
-            }
-            else
-            {
-                Debug.LogWarning($"У юнита {unit.name} отсутствует компонент UnitHpAndCommand.");
+                agent.SetDestination(ZonePlayer.transform.position);
             }
         }
+
+        Debug.Log("Р®РЅРёС‚С‹ РїРµСЂРµРјРµС‰Р°СЋС‚СЃСЏ Рє Р±Р°Р·Рµ РёРіСЂРѕРєР°.");
+    }
+
+    void ToggleSelectionSprite(GameObject unit, bool state)
+    {
+        if (unit == null) return;
+
+        Transform sprite = unit.transform.Find("SelectionSprite");
+        if (sprite != null) sprite.gameObject.SetActive(state);
     }
 }

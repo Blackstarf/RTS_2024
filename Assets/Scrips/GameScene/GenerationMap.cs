@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class GenerationMap : MonoBehaviour
 {
-    public GameObject Tree, Rock, Town_Center;
+    public GameObject Tree, Rock, Town_Center, ZoneVrag;
     public Renderer CylinderRenderer;
     public GameObject plane;
     public GameObject ZonesVrags;
@@ -186,5 +186,6 @@ public class GenerationMap : MonoBehaviour
                 placedObjects++;
             }
         }
+        ZoneVrag.SetActive(false);
     }
 }
