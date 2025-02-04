@@ -5,56 +5,113 @@ using UnityEngine.AI;
 
 public class Attaka : MonoBehaviour
 {
-    public GameObject ZonePlayer, Vrags; // Куда идут юниты
-    public GameObject PanelPlayerUI,PanelEnd;
-    public GameObject UnitPrefab; // Префаб юнита
-    private float spawnInterval = 15f; // Интервал спавна (был слишком большой)
-    private bool hasAttacked = false;
+    public GameObject ZonePlayer, Vrags;
+    public GameObject PanelPlayerUI, PanelEnd;
+    public GameObject UnitPrefab;
+    private float spawnInterval = 5f;
+    private Dictionary<string, bool> hasAttackedDict = new Dictionary<string, bool>();
 
     void Start()
     {
+        InitializeAttackDictionary();
         StartCoroutine(SpawnUnits());
+    }
+
+    void InitializeAttackDictionary()
+    {
+        foreach (Transform vrag in Vrags.transform)
+        {
+            if (vrag.name.StartsWith("Vrag_"))
+            {
+                hasAttackedDict[vrag.name] = false; // Добавляем все базы в словарь
+            }
+        }
     }
 
     void Update()
     {
-        CheckAndAttackZonePlayer(); // Проверяем атаку на каждом кадре
+        CheckAndAttackTargets();
     }
 
-    void CheckAndAttackZonePlayer()
+    void CheckAndAttackTargets()
     {
-        Transform vrag1Transform = Vrags.transform.Find("Vrag_1");
-        if (vrag1Transform == null) return;
-
-        List<GameObject> unitsUnderVrag1 = new List<GameObject>();
-        foreach (Transform child in vrag1Transform)
+        foreach (Transform vragBase in Vrags.transform)
         {
-            GameObject unit = child.gameObject;
-            if (unit.CompareTag("UnitVrag") && unit.name != "Worker")
+            if (!vragBase.name.StartsWith("Vrag_")) continue;
+
+            // Проверяем, есть ли база в словаре
+            if (!hasAttackedDict.ContainsKey(vragBase.name))
             {
-                unitsUnderVrag1.Add(unit);
+                Debug.LogWarning($"База {vragBase.name} не найдена в словаре. Добавляем её.");
+                hasAttackedDict[vragBase.name] = false; // Добавляем базу, если её нет
             }
-        }
 
-        // Когда юнитов достаточно (5 или больше), начинаем атаку
-        if (unitsUnderVrag1.Count >= 5 && !hasAttacked)
-        {
-            Debug.Log("Vrag_1 is attacking ZonePlayer");
-            hasAttacked = true;
-
-            // Даем всем юнитам цель — зону игрока
-            foreach (GameObject unit in unitsUnderVrag1)
+            List<GameObject> units = GetValidUnits(vragBase);
+            if (units.Count >= 5 && !hasAttackedDict[vragBase.name])
             {
-                if (unit == null) continue;
-
-                NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-                if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+                GameObject target = SelectRandomTarget(vragBase.gameObject);
+                if (target != null)
                 {
-                    agent.SetDestination(ZonePlayer.transform.position);
-                    StartCoroutine(CheckForObstacles(agent, ZonePlayer.transform.position));
+                    StartAttack(vragBase.gameObject, units, target);
+                    hasAttackedDict[vragBase.name] = true;
                 }
             }
         }
+    }
+
+    List<GameObject> GetValidUnits(Transform baseTransform)
+    {
+        List<GameObject> units = new List<GameObject>();
+        foreach (Transform child in baseTransform)
+        {
+            if (child.CompareTag("UnitVrag") && child.gameObject.activeSelf)
+            {
+                units.Add(child.gameObject);
+            }
+        }
+        return units;
+    }
+
+    GameObject SelectRandomTarget(GameObject attacker)
+    {
+        List<GameObject> possibleTargets = new List<GameObject> { ZonePlayer };
+
+        foreach (Transform vrag in Vrags.transform)
+        {
+            if (vrag.gameObject != attacker && vrag.gameObject.activeSelf)
+            {
+                possibleTargets.Add(vrag.gameObject);
+            }
+        }
+
+        return possibleTargets.Count > 0 ?
+            possibleTargets[Random.Range(0, possibleTargets.Count)] :
+            null;
+    }
+
+    void StartAttack(GameObject attacker, List<GameObject> units, GameObject target)
+    {
+        Debug.Log($"{attacker.name} атакует {target.name}");
+
+        foreach (GameObject unit in units)
+        {
+            if (unit == null) continue;
+
+            NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
+            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                agent.SetDestination(target.transform.position);
+                StartCoroutine(CheckForObstacles(agent, target.transform.position));
+            }
+        }
+
+        StartCoroutine(ResetAttackFlag(attacker.name));
+    }
+
+    IEnumerator ResetAttackFlag(string baseName)
+    {
+        yield return new WaitForSeconds(60f); // Задержка между атаками
+        hasAttackedDict[baseName] = false;
     }
 
     IEnumerator SpawnUnits()
@@ -63,37 +120,29 @@ public class Attaka : MonoBehaviour
         {
             yield return new WaitForSeconds(spawnInterval);
 
-            Transform vrag1Transform = Vrags.transform.Find("Vrag_1");
-            if (vrag1Transform == null) continue;
-
-            Vector3 spawnPosition = vrag1Transform.position + new Vector3(Random.Range(-2, 2), 0, Random.Range(-2, 2));
-            GameObject newUnit = Instantiate(UnitPrefab, spawnPosition, Quaternion.identity);
-            newUnit.transform.SetParent(vrag1Transform);
-            newUnit.tag = "UnitVrag";
-
-            // Не даем новому юниту идти в атаку сразу после спауна
-            NavMeshAgent agent = newUnit.GetComponent<NavMeshAgent>();
-            if (agent != null && agent.isOnNavMesh)
+            foreach (Transform vragBase in Vrags.transform)
             {
-            }
-            else
-            {
-                Debug.LogWarning("Spawned unit is not on NavMesh and cannot move. Destroying unit: " + newUnit.name);
-                Destroy(newUnit); // Удаляем, если не может ходить
-            }
+                if (!vragBase.name.StartsWith("Vrag_") || !vragBase.gameObject.activeSelf)
+                    continue;
 
-            // После спауна юнита обновляем список и проверяем, нужно ли атаковать
-            CheckAndAttackZonePlayer();
+                Vector3 spawnPosition = vragBase.position + new Vector3(Random.Range(-2, 2), 0, Random.Range(-2, 2));
+                GameObject newUnit = Instantiate(UnitPrefab, spawnPosition, Quaternion.identity);
+                newUnit.transform.SetParent(vragBase);
+                newUnit.tag = "UnitVrag";
+
+                NavMeshAgent agent = newUnit.GetComponent<NavMeshAgent>();
+                if (agent == null || !agent.isOnNavMesh)
+                {
+                    Debug.LogWarning("Юнит не может перемещаться. Уничтожаем: " + newUnit.name);
+                    Destroy(newUnit);
+                }
+            }
         }
     }
 
     IEnumerator CheckForObstacles(NavMeshAgent agent, Vector3 destination)
     {
-        // Если агент уже был уничтожен, не запускаем корутину
-        if (agent == null || agent.gameObject == null)
-        {
-            yield break;
-        }
+        if (agent == null) yield break;
 
         while (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh && agent.pathPending)
         {
@@ -105,17 +154,13 @@ public class Attaka : MonoBehaviour
             yield return null;
         }
 
-        // Повторная проверка перед работой с агентом
-        if (agent == null || agent.gameObject == null || !agent.isOnNavMesh || !agent.isActiveAndEnabled)
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
-            yield break;
-        }
-
-        if (agent.pathStatus == NavMeshPathStatus.PathInvalid || agent.pathStatus == NavMeshPathStatus.PathPartial)
-        {
-            Debug.LogWarning("Agent encountered an obstacle, resetting path for unit: " + agent.gameObject.name);
-            agent.ResetPath();
-            agent.SetDestination(destination);
+            if (agent.pathStatus != NavMeshPathStatus.PathComplete)
+            {
+                agent.ResetPath();
+                agent.SetDestination(destination);
+            }
         }
     }
 }

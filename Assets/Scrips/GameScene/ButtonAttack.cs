@@ -2,17 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine.AI;
 using System.Collections;
+using System.Linq;
 
 public class ButtonAttack : MonoBehaviour
 {
     public GameObject ZonePlayer, Vrags;
     private GameObject[] attackUnits;
-
+    private Selection arrayselecion;
+    //private List<GameObject> SelectionArray;
+    string NameBaseVrag;
+    private void Start()
+    {
+        arrayselecion= FindObjectOfType<Selection>();
+    }
     public void Attack()
     {
         Debug.Log("Атака началась!");
 
-        // 1. Собираем выделенных юнитов игрока
+        GameObject firstUnit = arrayselecion.selectedBuldings.FirstOrDefault(building => building.CompareTag("UnitVragBase"));
+
+        if (firstUnit != null)
+        {
+            NameBaseVrag = firstUnit.transform.parent.name;
+        }
+        else
+        {
+            Debug.LogWarning("Вражеская база не выбрана! Атака отменена.");
+            return;
+        }
+
+        Debug.Log(NameBaseVrag);
+
         List<GameObject> unitsList = new List<GameObject>();
         string[] unitNames = { "Siege_Tower", "Light_infantry", "Heavy", "Catapult", "Archer" };
 
@@ -35,13 +55,13 @@ public class ButtonAttack : MonoBehaviour
             return;
         }
 
-        // 2. Находим цели для атаки
         GameObject target = FindPriorityTarget();
         if (target != null)
         {
             StartCoroutine(AttackSequence(target));
         }
     }
+
 
     GameObject FindPriorityTarget()
     {
@@ -51,7 +71,7 @@ public class ButtonAttack : MonoBehaviour
             return null;
         }
 
-        Transform vrag1 = Vrags.transform.Find("Vrag_1");
+        Transform vrag1 = Vrags.transform.Find(NameBaseVrag);
 
         // Если враг уже уничтожен — отправляем юнитов на ZonePlayer
         if (vrag1 == null)

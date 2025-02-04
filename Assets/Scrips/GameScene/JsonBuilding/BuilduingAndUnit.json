@@ -10,7 +10,7 @@
       },
       "detectionRange": 15,
       "attack": {
-        "minRange": 3,
+        "minRange": 5,
         "maxRange": 7,
         "attackDelay": 1.5,
         "damage": 15

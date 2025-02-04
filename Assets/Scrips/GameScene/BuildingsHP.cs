@@ -91,7 +91,6 @@ public class BuildingsHP : MonoBehaviour
                 countVrag++;
             }
         }
-        Debug.Log($"{countPlayer}  {gameObject.tag}   {gameObject.name}");
         // Логика уничтожения базы игрока
         if (gameObject.name == "Town_Center" && gameObject.tag == "BasePlayer" && countPlayer == 1)
         {

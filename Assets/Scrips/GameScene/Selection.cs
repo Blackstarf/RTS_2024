@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NewBehaviourScript : MonoBehaviour
+public class Selection : MonoBehaviour
 {
     public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
     public Camera mainCamera;
 
-    private List<GameObject> selectedBuldings = new List<GameObject>(); // Список выделенных юнитов
+    public List<GameObject> selectedBuldings = new List<GameObject>(); // Список выделенных юнитов
     private Vector2 startMousePos; // Начальная позиция мыши
     private Vector2 endMousePos; // Конечная позиция мыши
     private bool isSelecting = false; // Флаг для отслеживания состояния выделения
@@ -51,7 +51,7 @@ public class NewBehaviourScript : MonoBehaviour
         {
             // Проверяем, попали ли в объект с тегом "Unit"
             GameObject hitObject = hit.collider.gameObject;
-            if (hitObject.CompareTag("UnitVragBase"))
+            if (hitObject.CompareTag("UnitVragBase") || hitObject.CompareTag("BasePlayer"))
             {
                 if (!selectedBuldings.Contains(hitObject)) // Если объект ещё не выбран
                 {
@@ -89,6 +89,16 @@ public class NewBehaviourScript : MonoBehaviour
         Vector2 max = Vector2.Max(startMousePos, endMousePos);
 
         foreach (GameObject unit in GameObject.FindGameObjectsWithTag("UnitVragBase"))
+        {
+            Vector3 screenPos = mainCamera.WorldToScreenPoint(unit.transform.position);
+
+            if (screenPos.x >= min.x && screenPos.x <= max.x &&
+                screenPos.y >= min.y && screenPos.y <= max.y)
+            {
+                SelectBuild(unit);
+            }
+        }
+        foreach (GameObject unit in GameObject.FindGameObjectsWithTag("BasePlayer"))
         {
             Vector3 screenPos = mainCamera.WorldToScreenPoint(unit.transform.position);
 

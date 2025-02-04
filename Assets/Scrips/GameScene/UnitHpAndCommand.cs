@@ -214,7 +214,6 @@ public class UnitHpAndCommand : MonoBehaviour
         }
     }
 
-
     public void SetAttackTarget(GameObject target)
     {
         currentTarget = target;
