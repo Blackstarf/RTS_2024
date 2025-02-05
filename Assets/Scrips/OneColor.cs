@@ -35,7 +35,6 @@ public class OneColor : MonoBehaviour
         {
             Sprite currentSprite = buttonImage.sprite;
             Sprite ButSpriteNOW;
-            //Debug.Log(currentSprite);
 
             Sprite randomSprite = sprites[UnityEngine.Random.Range(0, sprites.Length)];
             int i = 0;
@@ -49,7 +48,6 @@ public class OneColor : MonoBehaviour
                     {
                         for(int f =0;f< gameobjects.Length;f++)
                         {
-                            //Debug.Log(gameobjects[f].activeSelf);
                             if (gameobjects[f].activeSelf == true)
                             {
                                 UnityEngine.UI.Image buttonImageNOW = buttons[f].GetComponent<UnityEngine.UI.Image>();

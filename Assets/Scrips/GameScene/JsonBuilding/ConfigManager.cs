@@ -119,8 +119,8 @@ public class ConfigManager : MonoBehaviour
 
     private void LoadConfig()
     {
-        //string path = Path.Combine(Application.dataPath, "D:\\Projects\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
-        string path = Path.Combine(Application.dataPath, "C:\\Users\\B-ZONE\\OneDrive\\Рабочий стол\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
+        string path = Path.Combine(Application.dataPath, "D:\\Projects\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
+        //string path = Path.Combine(Application.dataPath, "C:\\Users\\B-ZONE\\OneDrive\\Рабочий стол\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
 
         if (File.Exists(path))
         {

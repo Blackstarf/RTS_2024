@@ -43,7 +43,6 @@ public class BreakRockTree : MonoBehaviour
 
                             // ќжидаем, пока рабочий дойдЄт до объекта
                             StartCoroutine(WaitUntilWorkerArrives(worker, clickedObject, agent));
-                           // selectionMine1.gameObject.SetActive(false);
                         }
                     }
                 }
