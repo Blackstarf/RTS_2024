@@ -13,7 +13,6 @@ public class GoPlay : MonoBehaviour
     public Button saveButton;
     public GameObject Vrag1, Vrag2, Vrag3, Vrag4, Vrag5, Vrag6, Player;
     private GameObject[] gameobjects;
-    private Sprite[] Colors;
 
     private string playerPrefsKeyPlayerName = "NamePlay";
 

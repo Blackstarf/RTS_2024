@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: UnitConfig
+  m_EditorClassIdentifier: Assembly-CSharp::UnitConfig
+  unitName: Workers
+  movementSpeed: 4
+  health: 25
+  trainingCost:
+    food: 0
+    wood: 0
+    crop: 0
+    rock: 0
+  detectionRange: 0
+  attack:
+    minRange: 0
+    maxRange: 0
+    attackDelay: 0
+    damage: 0
+  builder:
+    resourceGatheringSpeed: 0
+    repairSpeed: 0
+    repairEfficiency: 0
+  healing:
+    minRange: 0
+    maxRange: 0
+    healingDelay: 0
+    healingAmount: 0
+  capacity: 0

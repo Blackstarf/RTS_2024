@@ -9,6 +9,7 @@ public class ButtonAttack : MonoBehaviour
     public GameObject ZonePlayer, Vrags;
     private GameObject[] attackUnits;
     private Selection arrayselecion;
+    //private Audio audio;
     //private List<GameObject> SelectionArray;
     string NameBaseVrag;
     private void Start()

@@ -119,7 +119,11 @@
         "wood": 20,
         "rock": 30
       },
-      "trainsUnits": [ "Archer", "Light_infantry", "Heavy" ]
+      "trainsUnits": [
+        "Archer",
+        "Light_infantry",
+        "Heavy"
+      ]
     },
     {
       "name": "House",
@@ -128,7 +132,9 @@
         "wood": 10,
         "rock": 20
       },
-      "trainsUnits": [ "Worker" ]
+      "trainsUnits": [
+        "Worker"
+      ]
     },
     {
       "name": "University",
@@ -137,7 +143,10 @@
         "wood": 20,
         "crop": 20
       },
-      "trainsUnits": [ "Catapult", "Siege_Tower" ]
+      "trainsUnits": [
+        "Catapult",
+        "Siege_Tower"
+      ]
     },
     {
       "name": "Temple",
@@ -146,7 +155,9 @@
         "rock": 50,
         "crop": 20
       },
-      "trainsUnits": [ "Healer" ]
+      "trainsUnits": [
+        "Healer"
+      ]
     },
     {
       "name": "Granary",
@@ -188,7 +199,7 @@
         "wood": 10,
         "rock": 30
       },
-      "increasesMaxResources": true
+      "increasesMaxResources": 10
     },
     {
       "name": "Town_Center",
@@ -208,5 +219,40 @@
       },
       "producesResource": "crop"
     }
-  ]
+  ],
+  "GameSessionModifiers": {
+    "Easy": {
+      "spawnInterval": 15.0,
+      "unitTypes": [
+        "Heavy"
+      ],
+      "initialArmyLimit": 5,
+      "armyIncrement": 2
+    },
+    "Medium": {
+      "spawnInterval": 10.0,
+      "unitTypes": [
+        "Heavy",
+        "Archer"
+      ],
+      "initialArmyLimit": 8,
+      "armyIncrement": 4
+    },
+    "Hard": {
+      "spawnInterval": 5.0,
+      "unitTypes": [
+        "Heavy",
+        "Archer",
+        "Catapult"
+      ],
+      "initialArmyLimit": 10,
+      "armyIncrement": 5
+    }
+  },
+  "GameSettings": {
+    "screenResolution": "1280x720",
+    "windowMode": true,
+    "soundEnabled": false,
+    "volume": 0.6518051
+  }
 }
