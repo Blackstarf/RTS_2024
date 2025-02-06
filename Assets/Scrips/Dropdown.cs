@@ -6,15 +6,7 @@ using Newtonsoft.Json.Linq;
 public class Dropdown : MonoBehaviour
 {
     public TMP_Dropdown DropdownSize;
-    private string configFilePath;
-
-    private void Awake()
-    {
-        // Задаём путь к файлу настроек, например, в Application.persistentDataPath
-        configFilePath = Path.Combine(Application.persistentDataPath, "D:\\Projects\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
-        //configFilePath = Path.Combine(Application.persistentDataPath, "C:\\Users\\B-ZONE\\OneDrive\\Рабочий стол\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
-    }
-
+    private string configFilePath= "Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json";
     public void DropSize()
     {
         // Сохраняем текущий режим экрана
@@ -41,41 +33,14 @@ public class Dropdown : MonoBehaviour
             Screen.SetResolution(1600, 900, isFullScreen);
             newResolution = "1600x900";
         }
-
-        // После смены разрешения обновляем JSON
-        UpdateGameSettingsResolution(newResolution);
-    }
-
-    private void UpdateGameSettingsResolution(string newResolution)
-    {
-        if (!File.Exists(configFilePath))
-        {
-            Debug.LogError("Файл GameConfig.json не найден по пути: " + configFilePath);
-            return;
-        }
-
         // Читаем JSON из файла
         string json = File.ReadAllText(configFilePath);
-
         // Парсим строку в JObject
         JObject jObject = JObject.Parse(json);
-
-        // Ищем раздел "GameSettings" и обновляем значение "screenResolution"
-        if (jObject["GameSettings"] != null)
-        {
-            jObject["GameSettings"]["screenResolution"] = newResolution;
-        }
-        else
-        {
-            Debug.LogError("Секция 'GameSettings' не найдена в JSON.");
-            return;
-        }
-
+        jObject["GameSettings"]["screenResolution"] = newResolution;
         // Преобразуем обновлённый JObject обратно в строку
         string newJson = jObject.ToString();
-
         // Записываем обновлённый JSON в файл
         File.WriteAllText(configFilePath, newJson);
-        Debug.Log("Обновлено разрешение экрана в JSON: " + newResolution);
     }
 }
