@@ -1,8 +1,6 @@
 using System.IO;
 using UnityEngine;
 
-#region Application Settings
-
 // Класс для хранения данных настроек приложения
 [System.Serializable]
 public class AppSettingsData
@@ -29,9 +27,6 @@ public class AppSettings : ScriptableObject
         return JsonUtility.ToJson(data, true);
     }
 }
-#endregion
-
-#region Game Session Configuration
 
 // Настройки для конкретного уровня сложности
 [System.Serializable]
@@ -73,9 +68,7 @@ public class GameSessionConfig : ScriptableObject
         data = JsonUtility.FromJson<GameSessionConfigData>(json);
     }
 }
-#endregion
 
-#region ConfigManager
 
 public class ConfigManagerGameSes : MonoBehaviour
 {
@@ -96,8 +89,6 @@ public class ConfigManagerGameSes : MonoBehaviour
         LoadAppSettings();
         LoadGameSessionConfig();
     }
-
-    #region AppSettings Methods
 
     // Загрузка настроек приложения
     public void LoadAppSettings()
@@ -137,9 +128,6 @@ public class ConfigManagerGameSes : MonoBehaviour
         }
     }
 
-    #endregion
-
-    #region GameSessionConfig Methods
 
     // Загрузка конфигурации игровой сессии
     public void LoadGameSessionConfig()
@@ -154,10 +142,6 @@ public class ConfigManagerGameSes : MonoBehaviour
         else
         {
             Debug.LogError("Файл GameSessionConfig.json не найден по пути: " + gameSessionConfigPath);
-            // Здесь тоже можно создать дефолтную конфигурацию или уведомить об ошибке
         }
     }
-
-    #endregion
 }
-#endregion

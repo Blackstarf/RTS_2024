@@ -7,7 +7,7 @@ using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
-
+//enemy
 public class AddVrags : MonoBehaviour
 {
     public TMP_Dropdown enemyCountDropdown;
@@ -22,7 +22,7 @@ public class AddVrags : MonoBehaviour
 
     void Start()
     {
-        vrags = new bool[] { Vrag1.gameObject.activeSelf, Vrag2.gameObject.activeSelf, Vrag3.gameObject.activeSelf, Vrag4.gameObject.activeSelf, Vrag5.gameObject.activeSelf, Vrag6.gameObject.activeSelf, Player.gameObject.activeSelf };
+        vrags = new bool[] { Vrag1.activeSelf, Vrag2.gameObject.activeSelf, Vrag3.gameObject.activeSelf, Vrag4.gameObject.activeSelf, Vrag5.gameObject.activeSelf, Vrag6.gameObject.activeSelf, Player.gameObject.activeSelf };
         enemyCountDropdown.onValueChanged.AddListener(OnEnemyCountChanged);
     }
     public void OnEnemyCountChanged(int selectedValue)
@@ -132,7 +132,7 @@ public class AddVrags : MonoBehaviour
             }
 
         }
-        else if(startDropdown != 1) 
+        else if (startDropdown != 1)
         {
             Player.transform.localPosition = new Vector3(Player.transform.localPosition.x, 122, Player.transform.localPosition.z);
             Complexity.transform.localPosition = new Vector3(Complexity.transform.localPosition.x, 72, Complexity.transform.localPosition.z);

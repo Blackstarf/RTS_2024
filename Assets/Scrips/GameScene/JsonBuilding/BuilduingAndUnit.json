@@ -250,9 +250,9 @@
     }
   },
   "GameSettings": {
-    "screenResolution": "1280x720",
+    "screenResolution": "1366x768",
     "windowMode": true,
-    "soundEnabled": false,
-    "volume": 0.6518051
+    "soundEnabled": true,
+    "volume": 0.5871111
   }
 }

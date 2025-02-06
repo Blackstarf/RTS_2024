@@ -1,7 +1,7 @@
 using System.IO;
 using TMPro;
 using UnityEngine;
-using Newtonsoft.Json.Linq; // Не забудь добавить пакет Newtonsoft.Json в проект
+using Newtonsoft.Json.Linq;
 
 public class Dropdown : MonoBehaviour
 {
@@ -11,8 +11,8 @@ public class Dropdown : MonoBehaviour
     private void Awake()
     {
         // Задаём путь к файлу настроек, например, в Application.persistentDataPath
-        //configFilePath = Path.Combine(Application.persistentDataPath, "D:\\Projects\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
-        configFilePath = Path.Combine(Application.persistentDataPath, "C:\\Users\\B-ZONE\\OneDrive\\Рабочий стол\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
+        configFilePath = Path.Combine(Application.persistentDataPath, "D:\\Projects\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
+        //configFilePath = Path.Combine(Application.persistentDataPath, "C:\\Users\\B-ZONE\\OneDrive\\Рабочий стол\\RTS_2024\\Assets\\Scrips\\GameScene\\JsonBuilding\\BuilduingAndUnit.json");
     }
 
     public void DropSize()

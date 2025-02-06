@@ -3,10 +3,7 @@ using UnityEngine.AI;
 
 public class UnitHpAndCommand : MonoBehaviour
 {
-    [Header("Настройки")]
     public ConfigManager configManager;
-
-    [Header("Боевые параметры")]
     private float attackCooldown = 1.5f; // Задержка между атаками
 
     // Приватные переменные
@@ -224,8 +221,6 @@ public class UnitHpAndCommand : MonoBehaviour
         currentHP -= damage;
         if (currentHP <= 0)
         {
-            //if (gameObject.tag == "BasePlayer") { 
-            //}
             Destroy(gameObject);
         }
     }
