@@ -31,28 +31,12 @@ public class GoPlay : MonoBehaviour
         {
             if (obj.activeSelf)
             {
-                // Поиск компонента Button в GameObject
-                Button button = obj.GetComponentInChildren<Button>();
-                Image buttonImage = button.GetComponent<Image>();
-                string color;
-                if (buttonImage.sprite.name == "ScrollBarBg")
-                {
-                    color = "White";
-                }
-                else
-                {
-                    color = buttonImage.sprite.name.Substring(4);
-                }
-                PlayerPrefs.SetString("Color" + obj.name, color);
-                Debug.Log(obj.name);
-
                 // Поиск компонента TMP_InputField в GameObject
                 TMP_InputField inputField = obj.GetComponentInChildren<TMP_InputField>();
                 if (inputField != null)
                 {
                     // Сохраняем текст из TMP_InputField
                     PlayerPrefs.SetString("Name_" + obj.name.Substring(4), inputField.text);
-                    Debug.Log("Saved input field " + obj.name.Substring(4) + ":" + inputField.text+":");
                 }
             }
         }

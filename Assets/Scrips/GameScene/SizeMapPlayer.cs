@@ -6,7 +6,7 @@ using UnityEngine;
 public class SizeMapPlayer : MonoBehaviour
 {
     public TMP_Text TMPPlayer;
-    public GameObject Vrags; // GameObject containing Vrag_1, Vrag_2, etc.
+    public GameObject Vrags; 
     private float planeWidth = 0f;
     private float planeLength = 0f;
     private string NamePlayer = "Игрок 1";

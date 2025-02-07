@@ -91,9 +91,7 @@ public class BuildingCosts : MonoBehaviour
 
         var cost = config.constructionCost;
         bool canAfford = WoodCount >= cost.wood
-                      && RockCount >= cost.rock
-                      && CropCount >= cost.crop
-                      && FoodCount >= cost.food;
+                      && RockCount >= cost.rock;
 
         Transform selectionSprite = button.transform.Find("PanelNo");
         selectionSprite.gameObject.SetActive(!canAfford);
@@ -109,8 +107,7 @@ public class BuildingCosts : MonoBehaviour
 
         var cost = config.constructionCost;
 
-        if (WoodCount < cost.wood || RockCount < cost.rock
-         || CropCount < cost.crop || FoodCount < cost.food)
+        if (WoodCount < cost.wood || RockCount < cost.rock)
         {
             Debug.Log($"Недостаточно ресурсов для постройки {config.name}!");
             return;
@@ -121,8 +118,6 @@ public class BuildingCosts : MonoBehaviour
         // Вычитаем ресурсы
         WoodCount -= cost.wood;
         RockCount -= cost.rock;
-        CropCount -= cost.crop;
-        FoodCount -= cost.food;
 
         UpdateUI();
 

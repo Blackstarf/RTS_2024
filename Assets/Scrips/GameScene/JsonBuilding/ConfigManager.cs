@@ -7,9 +7,7 @@ using UnityEngine;
 [System.Serializable]
 public class Cost
 {
-    public int food;
     public int wood;
-    public int crop;
     public int rock;
 }
 

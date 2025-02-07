@@ -144,25 +144,6 @@ public class BreakRockTree : MonoBehaviour
         // Возвращаем возможность двигаться рабочему
         agent.isStopped = false;
     }
-
-    IEnumerator FreezeUnitForSeconds(GameObject unit, float seconds)
-    {
-        // Отключаем способность юнита двигаться
-        NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-        if (agent != null)
-        {
-            agent.isStopped = true; // Останавливаем движение
-        }
-
-        // Ждём указанное количество секунд
-        yield return new WaitForSeconds(seconds);
-
-        // Возвращаем возможность двигаться
-        if (agent != null)
-        {
-            agent.isStopped = false; // Разрешаем движение
-        }
-    }
     void SelectObject(GameObject obj)
     {
         // Выделяем новый объект

@@ -11,26 +11,24 @@ public class GenerationMap : MonoBehaviour
     public Renderer CylinderRenderer;
     public GameObject plane;
     public GameObject ZonesVrags;
+
     private GameObject[] models;
+
     private float density = 0.005f; // Плотность объектов (например, 0.01 = 1 объект на 100 единиц площади)
     private int objectCount; // Количество объектов, рассчитывается автоматически
     private Vector2 reservedAreaSize = new Vector2(25, 25); // Размер зарезервированной области
     private float perlinScale = 10f; // Масштаб шума Перлина
     private float perlinThreshold = 0.5f; // Порог значения шума для размещения объекта
     private float minDistance = 5f; // Минимальное расстояние между объектами
-    public NavMeshSurface navMeshSurface;
-
     private List<Vector3> placedObjectPositions = new List<Vector3>(); // Список позиций размещённых объектов
-    private List<Vector3> townCenterPositions = new List<Vector3>(); // Список позиций Town_Center
 
     // Новые поля для размещения Town_Center
     private int townCenterCount; // Количество ратуш
     private float townCenterRadiusMultiplier = 0.4f;
+    private List<Vector3> townCenterPositions = new List<Vector3>(); // Список позиций Town_Center
 
     void Start()
     {
-        // Получаем компонент NavMeshSurface
-        navMeshSurface = GetComponent<NavMeshSurface>();
         models = new GameObject[] { Tree, Rock };
         townCenterCount = PlayerPrefs.GetInt("CountVrags");
 
@@ -96,9 +94,6 @@ public class GenerationMap : MonoBehaviour
         }
         CylinderRenderer.material.color = color;
 
-        // Получаем размеры Plane
-        planeSize = plane.GetComponent<Renderer>().bounds.size;
-
         // Рассчитываем количество объектов на основе плотности
         float planeArea = planeSize.x * planeSize.z; // Площадь плоскости
         objectCount = Mathf.RoundToInt(planeArea * density); // Количество объектов пропорционально плотности
@@ -129,8 +124,7 @@ public class GenerationMap : MonoBehaviour
             }
 
             // Проверяем, чтобы объект не попадал в центральную зарезервированную область
-            if (randomX > reservedMin.x && randomX < reservedMax.x &&
-                randomZ > reservedMin.y && randomZ < reservedMax.y)
+            if (randomX > reservedMin.x && randomX < reservedMax.x && randomZ > reservedMin.y && randomZ < reservedMax.y)
             {
                 isInReservedArea = true;
             }
@@ -141,9 +135,7 @@ public class GenerationMap : MonoBehaviour
             }
 
             // Генерируем значение шума Перлина для координат
-            float perlinValue = Mathf.PerlinNoise(
-                (randomX + planeSize.x / 2) / perlinScale,
-                (randomZ + planeSize.z / 2) / perlinScale);
+            float perlinValue = Mathf.PerlinNoise( (randomX + planeSize.x / 2) / perlinScale,  (randomZ + planeSize.z / 2) / perlinScale);
 
             // Проверяем порог значения шума
             if (perlinValue >= perlinThreshold)
