@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Selection : MonoBehaviour
 {
-    public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
+    public RectTransform selectionBoxUI; // RectTransform для визуализации selection box выделяемая картинка
     public Camera mainCamera;
 
     public List<GameObject> selectedBuldings = new List<GameObject>(); // Список выделенных юнитов

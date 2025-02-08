@@ -8,15 +8,15 @@ using UnityEngine.UI;
 
 public class GoUnits : MonoBehaviour
 {
-    public RectTransform selectionBoxUI; // RectTransform для визуализации selection box
+    public RectTransform ImageSelection; // RectTransform для визуализации selection box  выделяемая картинка
     public Camera mainCamera;
     public Sprite Healer, Orc, Archer, Heavy, Light_infantry, Catapult, SiegeTower, Converter, Worker, Town_Center;
     public Image UnitOrBuilds;
     public TMP_Text NameUnit;
     public GameObject Panel, PanellotUnits, PanelBuidings, PanelCommand;
     public Image[] Images, ImagesHp;
-    private Sprite[] UnitsObject;
     public static List<GameObject> selectedUnits = new List<GameObject>(); // Список выделенных юнитов
+    private Sprite[] UnitsObject;
     private Vector2 startMousePos; // Начальная позиция мыши
     private Vector2 endMousePos; // Конечная позиция мыши
     private bool isSelecting = false; // Флаг для отслеживания состояния выделения
@@ -25,7 +25,7 @@ public class GoUnits : MonoBehaviour
     private void Start()
     {
         UnitsObject = new Sprite[] { Archer, Orc, Healer, Heavy, Light_infantry, Converter, Worker, Town_Center };
-        selectionBoxUI.gameObject.SetActive(false);
+        ImageSelection.gameObject.SetActive(false);
     }
 
     void Update()
@@ -111,6 +111,9 @@ public class GoUnits : MonoBehaviour
             {
                 PanelBuidings.SetActive(false);
             }
+            else{
+                PanelBuidings.SetActive(true);
+            }
             if (unit.name == "Knight" || unit.name == "Archer" || unit.name == "Heavy" || unit.name == "Catapult" || unit.name == "SiegeTower")
             {
                 transform.gameObject.SetActive(true);
@@ -120,7 +123,6 @@ public class GoUnits : MonoBehaviour
                 transform.gameObject.SetActive(false);
             }
         }
-
         HandleSelection();
         HandleMovement();
     }
@@ -129,24 +131,24 @@ public class GoUnits : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && !isInNoSelectionZone)
         {
-            startMousePos = Input.mousePosition;
-            isSelecting = true;
-            selectionBoxUI.gameObject.SetActive(true);
-            selectionBoxUI.sizeDelta = Vector2.zero; // Сброс размера
-            selectionBoxUI.anchoredPosition = startMousePos; // Установите начальную позицию
+            startMousePos = Input.mousePosition; // Запоминаем позицию мыши
+            isSelecting = true; // Флаг: выделение активно
+            ImageSelection.gameObject.SetActive(true); // Показываем UI-прямоугольник
+            ImageSelection.sizeDelta = Vector2.zero; // Сброс размера прямоугольника
+            ImageSelection.anchoredPosition = startMousePos; // Устанавливаем начальную позицию
         }
 
         if (Input.GetMouseButton(0) && isSelecting)
         {
-            endMousePos = Input.mousePosition;
-            UpdateSelectionBox();
+            endMousePos = Input.mousePosition; // Текущая позиция мыши
+            UpdateSelectionBox(); // Обновляем размер и позицию прямоугольника
         }
 
-        if (Input.GetMouseButtonUp(0) && isSelecting)
+        if (Input.GetMouseButtonUp(0) && isSelecting)//если отпустили ЛМК
         {
-            isSelecting = false;
-            selectionBoxUI.gameObject.SetActive(false);
-            SelectUnitsInBox();
+            isSelecting = false; // Сбрасываем флаг
+            ImageSelection.gameObject.SetActive(false); // Скрываем прямоугольник
+            SelectUnitsInBox(); // Выбираем юнитов внутри области
         }
     }
 
@@ -156,14 +158,13 @@ public class GoUnits : MonoBehaviour
         float height = endMousePos.y - startMousePos.y;
 
         // Установите размер selectionBox
-        selectionBoxUI.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
+        ImageSelection.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
 
         // Преобразуйте экранные координаты в локальные
         Vector2 localStart;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(selectionBoxUI.parent.GetComponent<RectTransform>(), startMousePos, null, out localStart);
-
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(ImageSelection.parent.GetComponent<RectTransform>(), startMousePos, null, out localStart);
         // Установите позицию selectionBox в центр между startMousePos и endMousePos
-        selectionBoxUI.anchoredPosition = localStart + new Vector2(width / 2, height / 2);
+        ImageSelection.anchoredPosition = localStart + new Vector2(width / 2, height / 2);
     }
 
     void SelectUnitsInBox()
@@ -183,31 +184,6 @@ public class GoUnits : MonoBehaviour
                 screenPos.y >= min.y && screenPos.y <= max.y)
             {
                 SelectUnit(unit); // Добавляем объект в список выделенных
-            }
-        }
-    }
-
-    void HandleMovement()
-    {
-        if (selectedUnits.Count > 0 && Input.GetMouseButtonDown(1))
-        {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                foreach (GameObject unit in selectedUnits)
-                {
-                    NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
-                    if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
-                    {
-                        //Debug.Log("Moving unit: " + unit.name);
-                        agent.SetDestination(hit.point);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("NavMeshAgent is not active or not on NavMesh for unit: " + unit.name);
-                    }
-                }
             }
         }
     }
@@ -234,11 +210,30 @@ public class GoUnits : MonoBehaviour
         }
         selectedUnits.Clear();
     }
+    void HandleMovement()
+    {
+        if (selectedUnits.Count > 0 && Input.GetMouseButtonDown(1))// есть ли выделенные юниты и ПКМ
+        {
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);//отправляем луч к ПКМ
 
-    /// <summary>
-    /// Проверяет, находится ли указатель над зоной, где выделение запрещено.
-    /// </summary>
-    /// <returns>True, если указатель находится над зоной, где выделение запрещено, иначе false.</returns>
+            if (Physics.Raycast(ray, out RaycastHit hit))//столкнулся ли он с чем-то пересек ли он какой-нибудь коллайдер и храниться в hit
+            {
+                foreach (GameObject unit in selectedUnits)
+                {
+                    NavMeshAgent agent = unit.GetComponent<NavMeshAgent>();
+                    if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+                    {
+                        agent.SetDestination(hit.point);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("NaMeAg is not active" + unit.name);
+                    }
+                }
+            }
+        }
+    }
+
     private bool IsPointerOverNoSelectionZone()
     {
         PointerEventData eventDataCurrentPos = new PointerEventData(EventSystem.current);
@@ -253,44 +248,5 @@ public class GoUnits : MonoBehaviour
             }
         }
         return false;
-    }
-
-    public List<string> CheckNames(List<GameObject> objects)
-    {
-        List<string> resultNames = new List<string>();
-        int status = 1; // Начальный статус — все имена одинаковые
-
-        if (objects.Count == 0)
-        {
-            return resultNames; // Если список пустой, возвращаем пустой список
-        }
-
-        string firstName = objects[0].name; // Берём имя первого объекта
-
-        // Проходим по всем объектам и проверяем, одинаковые ли имена
-        foreach (GameObject obj in objects)
-        {
-            if (obj.name != firstName)
-            {
-                status = 2; // Если есть хоть одно отличие, меняем статус на 2
-                break; // Прекращаем проверку, так как достаточно одного отличия
-            }
-        }
-
-        // Если все имена одинаковые
-        if (status == 1)
-        {
-            resultNames.Add(firstName); // Добавляем имя в список
-        }
-        else
-        {
-            // Если имена разные, добавляем все имена в список
-            foreach (var obj in objects)
-            {
-                resultNames.Add(obj.name);
-            }
-        }
-
-        return resultNames; // Возвращаем список имён
     }
 }

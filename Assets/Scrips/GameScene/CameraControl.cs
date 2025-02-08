@@ -2,7 +2,6 @@
 
 public class CameraControl : MonoBehaviour
 {
-    private float RotateSpeed = 10f;
     private float Speed = 30f;
     private float ZoomSpeed = 1000f;
     private float EdgeScrollThreshold = 0.05f; // 5% от края экрана
@@ -27,9 +26,9 @@ public class CameraControl : MonoBehaviour
         if (mousePos.y <= screenSize.y * EdgeScrollThreshold) ver -= 1;
         if (mousePos.y >= screenSize.y * (1 - EdgeScrollThreshold)) ver += 1;
 
-        // Ограничим значения от -1 до 1
-        hor = Mathf.Clamp(hor, -1f, 1f);
-        ver = Mathf.Clamp(ver, -1f, 1f);
+        //// Ограничим значения от -1 до 1 чтобы не было двойного ускорения
+        //hor = Mathf.Clamp(hor, -1f, 1f);
+        //ver = Mathf.Clamp(ver, -1f, 1f);
 
         // Модификатор скорости
         _mult = Input.GetKey(KeyCode.LeftShift) ? 2f : 1f;
@@ -39,6 +38,7 @@ public class CameraControl : MonoBehaviour
         // Обработка зума
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         transform.position += transform.up * ZoomSpeed * Time.deltaTime * scroll;
+
         transform.position = new Vector3(
             transform.position.x,
             Mathf.Clamp(transform.position.y, -5f, 30f),

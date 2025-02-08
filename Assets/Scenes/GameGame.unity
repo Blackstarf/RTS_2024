@@ -14925,7 +14925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 569835237ff5f1c4791ecd86d5c55489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectionBoxUI: {fileID: 1652637737}
+  ImageSelection: {fileID: 1652637737}
   mainCamera: {fileID: 1100161723}
   Healer: {fileID: 21300000, guid: 3bf9bc81e50045241944ad84906fbf8e, type: 3}
   Orc: {fileID: 21300000, guid: 646a9231d1e6e65429c62074a8b0f3df, type: 3}
@@ -22979,9 +22979,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d50f933a215715a40aae93692163d566, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RotateSpeed: 10
-  Speed: 20
-  ZoomSpeed: 2000
 --- !u!4 &1897542438
 Transform:
   m_ObjectHideFlags: 0
@@ -24514,7 +24511,6 @@ MonoBehaviour:
   CylinderRenderer: {fileID: 763832619}
   plane: {fileID: 1488558817}
   ZonesVrags: {fileID: 1186555356}
-  navMeshSurface: {fileID: 1178860542}
 --- !u!4 &2039689049
 Transform:
   m_ObjectHideFlags: 0
