@@ -14,12 +14,6 @@ public class Selection : MonoBehaviour
 
     void Update()
     {
-        // Проверка на правый клик мыши
-        if (Input.GetMouseButtonDown(1)) // 1 - это правый клик
-        {
-            HandleRightClick();
-        }
-
         if (Input.GetMouseButtonDown(0)) // Начало выделения (левая кнопка)
         {
             startMousePos = Input.mousePosition;
@@ -38,30 +32,6 @@ public class Selection : MonoBehaviour
         {
             endMousePos = Input.mousePosition;
             UpdateSelectionBox();
-        }
-    }
-
-    void HandleRightClick()
-    {
-        // Перевести экранные координаты в мир
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit))
-        {
-            // Проверяем, попали ли в объект с тегом "Unit"
-            GameObject hitObject = hit.collider.gameObject;
-            if (hitObject.CompareTag("UnitVragBase") || hitObject.CompareTag("BasePlayer"))
-            {
-                if (!selectedBuldings.Contains(hitObject)) // Если объект ещё не выбран
-                {
-                    SelectBuild(hitObject);
-                }
-                else
-                {
-                    DeselectUnit(hitObject); // Если объект уже выбран, снимаем выделение
-                }
-            }
         }
     }
 
@@ -131,15 +101,5 @@ public class Selection : MonoBehaviour
             }
         }
         selectedBuldings.Clear();
-    }
-
-    void DeselectUnit(GameObject unit)
-    {
-        selectedBuldings.Remove(unit);
-        Transform selectionSprite = unit.transform.Find("SelectionSprite");
-        if (selectionSprite != null)
-        {
-            selectionSprite.gameObject.SetActive(false);
-        }
     }
 }
