@@ -79,14 +79,17 @@ public class BuildingCosts : MonoBehaviour
 
             if (Input.GetMouseButtonDown(1))
             {
-                CancelPlacement();
+                Debug.Log("Отмена постройки!");
+                Destroy(currentFarm);
+                currentFarm = null;
+                isPlacing = false;
             }
         }
     }
 
     private void UpdateButtonAvailability(Button button, BuildingInfo buildingInfo)
     {
-        var config = configManager.GetBuildingConfig(buildingInfo.BuildingName);
+        BuildingData config = configManager.GetBuildingConfig(buildingInfo.BuildingName);
         if (config == null) return;
 
         var cost = config.constructionCost;
@@ -95,34 +98,6 @@ public class BuildingCosts : MonoBehaviour
 
         Transform selectionSprite = button.transform.Find("PanelNo");
         selectionSprite.gameObject.SetActive(!canAfford);
-    }
-
-    public void Build(Button button)
-    {
-        if (!buildings.ContainsKey(button)) return;
-
-        var buildingInfo = buildings[button];
-        var config = configManager.GetBuildingConfig(buildingInfo.BuildingName);
-        if (config == null) return;
-
-        var cost = config.constructionCost;
-
-        if (WoodCount < cost.wood || RockCount < cost.rock)
-        {
-            Debug.Log($"Недостаточно ресурсов для постройки {config.name}!");
-            return;
-        }
-
-        if (isPlacing) return;
-
-        // Вычитаем ресурсы
-        WoodCount -= cost.wood;
-        RockCount -= cost.rock;
-
-        UpdateUI();
-
-        currentFarm = Instantiate(buildingInfo.Prefab);
-        isPlacing = true;
     }
 
     private void UpdateUI()
@@ -136,7 +111,7 @@ public class BuildingCosts : MonoBehaviour
     void MoveBuildingWithCursor()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
+        if (Physics.Raycast(ray, out RaycastHit hit))
         {
             if (hit.collider.gameObject == plane)
             {
@@ -181,26 +156,34 @@ public class BuildingCosts : MonoBehaviour
 
         currentFarm.transform.SetParent(BuildingContainer.transform);
 
-        UpdateNavMesh();
-
         isPlacing = false;
         currentFarm = null;
     }
-
-    void CancelPlacement()
+    public void Build(Button button)
     {
-        Debug.Log("Отмена постройки!");
-        Destroy(currentFarm);
-        currentFarm = null;
-        isPlacing = false;
-    }
+        if (!buildings.ContainsKey(button)) return;
 
-    private void UpdateNavMesh()
-    {
-        NavMeshSurface[] surfaces = FindObjectsOfType<NavMeshSurface>();
-        foreach (var surface in surfaces)
+        var buildingInfo = buildings[button];
+        var config = configManager.GetBuildingConfig(buildingInfo.BuildingName);
+        if (config == null) return;
+
+        var cost = config.constructionCost;
+
+        if (WoodCount < cost.wood || RockCount < cost.rock)
         {
-            surface.BuildNavMesh();
+            Debug.Log($"Недостаточно ресурсов для постройки {config.name}!");
+            return;
         }
+
+        if (isPlacing) return;
+
+        // Вычитаем ресурсы
+        WoodCount -= cost.wood;
+        RockCount -= cost.rock;
+
+        UpdateUI();
+
+        currentFarm = Instantiate(buildingInfo.Prefab);
+        isPlacing = true;
     }
 }

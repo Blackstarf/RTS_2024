@@ -9,8 +9,6 @@ public class ButtonAttack : MonoBehaviour
     public GameObject ZonePlayer, Vrags;
     private GameObject[] attackUnits;
     private Selection arrayselecion;
-    //private Audio audio;
-    //private List<GameObject> SelectionArray;
     string NameBaseVrag;
     private void Start()
     {
@@ -18,7 +16,6 @@ public class ButtonAttack : MonoBehaviour
     }
     public void Attack()
     {
-        Debug.Log("Атака началась!");
 
         GameObject firstUnit = arrayselecion.selectedBuldings.FirstOrDefault(building => building.CompareTag("UnitVragBase"));
 
@@ -31,8 +28,7 @@ public class ButtonAttack : MonoBehaviour
             Debug.LogWarning("Вражеская база не выбрана! Атака отменена.");
             return;
         }
-
-        Debug.Log(NameBaseVrag);
+        Debug.Log("Атака началась!");
 
         List<GameObject> unitsList = new List<GameObject>();
         string[] unitNames = { "Siege_Tower", "Light_infantry", "Heavy", "Catapult", "Archer" };
@@ -44,7 +40,8 @@ public class ButtonAttack : MonoBehaviour
                 if (unit.name.Contains(name))
                 {
                     unitsList.Add(unit);
-                    ToggleSelectionSprite(unit, true);
+                    Transform sprite = unit.transform.Find("SelectionSprite");
+                    if (sprite != null) sprite.gameObject.SetActive(true);
                 }
             }
         }
@@ -84,7 +81,10 @@ public class ButtonAttack : MonoBehaviour
 
         // Поиск врагов внутри Vrag_1
         List<GameObject> enemies = new List<GameObject>();
-        FindTargetsInHierarchy(vrag1, "UnitVrag", enemies);
+        foreach (Transform child in vrag1)
+        {
+            if (child.CompareTag("UnitVrag")) enemies.Add(child.gameObject);
+        }
 
         if (enemies.Count > 0)
         {
@@ -100,27 +100,10 @@ public class ButtonAttack : MonoBehaviour
             MoveUnitsToBase();
             return null;
         }
-
         return baseTransform.gameObject;
     }
-
-    void FindTargetsInHierarchy(Transform parent, string tag, List<GameObject> results)
+     GameObject GetClosestTarget(List<GameObject> targets)
     {
-        foreach (Transform child in parent)
-        {
-            if (child.CompareTag(tag)) results.Add(child.gameObject);
-            if (child.childCount > 0) FindTargetsInHierarchy(child, tag, results);
-        }
-    }
-
-    GameObject GetClosestTarget(List<GameObject> targets)
-    {
-        if (attackUnits == null || attackUnits.Length == 0)
-        {
-            Debug.LogWarning("Нет атакующих юнитов!");
-            return null;
-        }
-
         GameObject closest = null;
         float minDistance = Mathf.Infinity;
 
@@ -192,7 +175,7 @@ public class ButtonAttack : MonoBehaviour
                 }
             }
 
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(1f);
 
             if (target == null || !target.activeSelf)
             {
@@ -224,13 +207,5 @@ public class ButtonAttack : MonoBehaviour
         }
 
         Debug.Log("Юниты перемещаются к базе игрока.");
-    }
-
-    void ToggleSelectionSprite(GameObject unit, bool state)
-    {
-        if (unit == null) return;
-
-        Transform sprite = unit.transform.Find("SelectionSprite");
-        if (sprite != null) sprite.gameObject.SetActive(state);
     }
 }

@@ -51,12 +51,6 @@ public class BuildingsHP : MonoBehaviour
 
     void DestroyBuilding()
     {
-        if (attakaScript == null)
-        {
-            Debug.LogError("Attaka script is not initialized!");
-            return;
-        }
-
         // Проверяем, есть ли дочерние Town_Center в ZonePlayer
         int countPlayer = 0;
         if (attakaScript.ZonePlayer != null)
@@ -77,20 +71,7 @@ public class BuildingsHP : MonoBehaviour
 
         // Проверяем родительский объект (он же база врага)
         Transform Vrag = gameObject.transform.parent;
-        if (Vrag == null)
-        {
-            Debug.LogError("Vrag (parent of the building) is null!");
-            return;
-        }
-
-        int countVrag = 0;
-        foreach (Transform child in Vrag)
-        {
-            if (child.name == "Town_Center")
-            {
-                countVrag++;
-            }
-        }
+    
         // Логика уничтожения базы игрока
         if (gameObject.name == "Town_Center" && gameObject.tag == "BasePlayer" && countPlayer == 1)
         {
@@ -104,7 +85,7 @@ public class BuildingsHP : MonoBehaviour
             GameEnd.SetActive(true);
         }
         // Логика уничтожения базы врага
-        else if (gameObject.name == "Town_Center" && gameObject.tag == "UnitVragBase" && countVrag == 1)
+        else if (gameObject.name == "Town_Center" && gameObject.tag == "UnitVragBase")
         {
             Debug.Log("Уничтожена база врага (Vrag)");
             Destroy(Vrag.gameObject);

@@ -41,6 +41,7 @@ public class UnitHpAndCommand : MonoBehaviour
         {
             attackRange = config.attack.maxRange;
             attackDamage = config.attack.damage;
+            attackCooldown = config.attack.attackDelay;
         }
     }
 
@@ -55,24 +56,19 @@ public class UnitHpAndCommand : MonoBehaviour
         // Если это вражеский юнит, обрабатываем его логику
         if (gameObject.CompareTag("UnitVrag"))
         {
-            HandleEnemyLogic();
+            if (currentTarget == null)
+            {
+                FindNewTarget();
+            }
+
+            if (currentTarget != null)
+            {
+                MoveToTarget();
+                TryAttack();
+            }
         }
         // Если это юнит игрока, обрабатываем атаку цели
         else if (currentTarget != null)
-        {
-            MoveToTarget();
-            TryAttack();
-        }
-    }
-
-    void HandleEnemyLogic()
-    {
-        if (currentTarget == null)
-        {
-            FindNewTarget();
-        }
-
-        if (currentTarget != null)
         {
             MoveToTarget();
             TryAttack();
@@ -95,7 +91,7 @@ public class UnitHpAndCommand : MonoBehaviour
         // Если не нашли юнитов, ищем здания
         if (currentTarget == null)
         {
-            FindBuildingsTarget();
+            FindTargetByTag("BasePlayer");
         }
     }
 
@@ -118,30 +114,6 @@ public class UnitHpAndCommand : MonoBehaviour
         if (closestTarget != null && closestDistance <= detectionRange)
         {
             currentTarget = closestTarget;
-        }
-    }
-
-    void FindBuildingsTarget()
-    {
-        // Ищем ближайший объект с тегом "Buildings"
-        GameObject[] buildings = GameObject.FindGameObjectsWithTag("BasePlayer");
-        float closestDistance = Mathf.Infinity;
-        GameObject closestBuilding = null;
-
-        foreach (GameObject building in buildings)
-        {
-            float distance = Vector3.Distance(transform.position, building.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestBuilding = building;
-            }
-        }
-
-        if (closestBuilding != null && closestDistance <= detectionRange)
-        {
-            // Если нашли Building в зоне обнаружения, выбираем его как цель
-            currentTarget = closestBuilding;
         }
     }
 
@@ -180,8 +152,6 @@ public class UnitHpAndCommand : MonoBehaviour
 
     void Attack()
     {
-        Debug.Log($"Атакую цель: {currentTarget.name}");
-
         // Проверяем, есть ли у цели компонент UnitHpAndCommand (для юнитов)
         UnitHpAndCommand targetUnit = currentTarget.GetComponent<UnitHpAndCommand>();
         if (targetUnit != null)
@@ -198,17 +168,12 @@ public class UnitHpAndCommand : MonoBehaviour
                 Debug.Log("Цель - здание. Наношу урон.");
                 targetBuilding.TakeDamage((int)attackDamage);
             }
-            else
-            {
-                Debug.Log("У цели нет компонента UnitHpAndCommand или BuildingsHP.");
-            }
         }
-
-        // Если цель уничтожена, сбрасываем текущую цель
-        if (currentTarget == null || currentTarget.GetComponent<UnitHpAndCommand>() == null && currentTarget.GetComponent<BuildingsHP>() == null)
-        {
-            currentTarget = null;
-        }
+        //// Если цель уничтожена, сбрасываем текущую цель
+        //if (currentTarget == null || currentTarget.GetComponent<UnitHpAndCommand>() == null && currentTarget.GetComponent<BuildingsHP>() == null)
+        //{
+        //    currentTarget = null;
+        //}
     }
 
     public void SetAttackTarget(GameObject target)

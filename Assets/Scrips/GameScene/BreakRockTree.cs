@@ -23,12 +23,9 @@ public class BreakRockTree : MonoBehaviour
             if (Physics.Raycast(ray, out hit)) // Проверяем, попал ли луч в объект
             {
                 GameObject clickedObject = hit.collider.gameObject;
-
                 // Если объект можно выделить
                 if (clickedObject.CompareTag("Selectable") || clickedObject.CompareTag("Unit"))
                 {
-                    SelectObject(clickedObject);
-
                     // Если выделен один объект, и это рабочий
                     if (GoUnits.selectedUnits.Count == 1 && GoUnits.selectedUnits[0].name == "Worker")
                     {
@@ -143,12 +140,5 @@ public class BreakRockTree : MonoBehaviour
 
         // Возвращаем возможность двигаться рабочему
         agent.isStopped = false;
-    }
-    void SelectObject(GameObject obj)
-    {
-        // Выделяем новый объект
-        selectedObject = obj;
-
-        Debug.Log("Selected: " + obj.name);
     }
 }
